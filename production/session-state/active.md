@@ -5,8 +5,8 @@ Stage: Pre-Production. Technical Setup gate passed after remediation. Next: /ver
 
 <!-- STATUS -->
 Epic: Pre-Production
-Feature: Epic planning
-Task: /create-epics layer:foundation
+Feature: Story planning
+Task: /create-stories tick-simulation
 <!-- /STATUS -->
 
 ## Progress (all 2026-09-20)
@@ -20,7 +20,8 @@ Task: /create-epics layer:foundation
 - [x] design/art/art-bible.md s1-4; accessibility-requirements (Basic); ux/interaction-patterns; ux/machine-inspection; ux/hud
 - [x] gate-check: Concept CONCERNS, Systems Design CONCERNS, Technical Setup PASS w/ CONCERNS -> stage.txt = Pre-Production
 - [~] /vertical-slice, /prototype, /playtest-report — WAIVED by creator: no sub-projects; implement directly in the main project
-- [ ] /create-epics layer:foundation, layer:core; /create-stories; /sprint-plan new
+- [x] /create-epics all: 22 epics in production/epics/ + index.md (2 Deferred systems excluded)
+- [ ] /create-stories per epic, starting tick-simulation and item-registry; then /sprint-plan new
 - [ ] Sprint 1 spikes: MessagePack AOT on 6.6; UITK runtime binding; /setup-engine refresh
 - [ ] ADRs before implementation of grid/time: time-control; map/chunk model
 
