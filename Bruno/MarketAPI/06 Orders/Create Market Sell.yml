@@ -1,0 +1,35 @@
+info:
+  name: Create Market Sell
+  type: http
+  seq: 2
+  tags: [orders, transaction]
+http:
+  method: POST
+  url: "{{baseUrl}}/v1/orders"
+  auth: inherit
+  headers:
+    - name: Content-Type
+      value: application/json
+    - name: Idempotency-Key
+      value: order-market-sell-example-0001
+  body:
+    type: json
+    data: |-
+      {
+        "realmId": "{{realmId}}",
+        "instrumentId": "{{instrumentId}}",
+        "side": "SELL",
+        "type": "MARKET",
+        "quantity": "25",
+        "limitPrice": null,
+        "timeInForce": "IOC",
+        "expiresAt": null,
+        "warehouseReservationId": null,
+        "exportId": "{{exportId}}",
+        "clientOrderId": "client-order-0002"
+      }
+settings:
+  encodeUrl: true
+  timeout: 20000
+docs: |-
+  A SELL order consumes available normalized quantity from an accepted export lot.

@@ -1,0 +1,59 @@
+opencollection: 1.0.0
+
+info:
+  name: MarketAPI
+  version: v0.1.0-design
+config:
+  proxy:
+    inherit: true
+    config:
+      protocol: http
+      hostname: ""
+      port: ""
+      auth:
+        username: ""
+        password: ""
+      bypassProxy: ""
+
+request:
+  variables:
+    - name: baseUrl
+      value: https://market.example.invalid
+    - name: accessToken
+      value: ""
+      disabled: true
+    - name: realmId
+      value: vanilla-1
+    - name: instrumentId
+      value: equilibrium-wood-default
+    - name: orderId
+      value: 01JMARKETORDER0000000000000
+    - name: exportId
+      value: 01JMARKETEXPORT0000000000000
+    - name: settlementId
+      value: 01JMARKETSETTLEMENT000000000
+    - name: migrationId
+      value: 01JMARKETMIGRATION0000000000
+  auth:
+    type: bearer
+    token: "{{accessToken}}"
+bundled: false
+extensions:
+  bruno:
+    ignore:
+      - node_modules
+      - .git
+    presets:
+      request:
+        type: http
+        url: "{{baseUrl}}"
+docs:
+  content: |-
+    # Equilibrium Market API
+
+    Design-stage executable examples for the versioned Market Server API.
+    Configure `baseUrl` and `accessToken` before sending authenticated requests.
+
+    The normative HTTP contract is `openapi.yaml`; WSS events are described by
+    `asyncapi.yaml`; cross-request invariants are documented in `API-DESIGN.md`.
+  type: text/markdown

@@ -1,0 +1,508 @@
+# Game World Entity Registry
+#
+# PURPOSE: Single source of truth for all named game-world facts that appear
+# in more than one document. Skills check this before writing new content to
+# detect cross-doc inconsistencies at authoring time.
+#
+# RULES:
+#   - Only register facts that cross system boundaries. Internal-only facts
+#     (a formula used in one GDD only) do NOT need to be registered.
+#   - Never delete entries — set status: deprecated instead.
+#   - When a value changes: update the value, set revised: to today's date,
+#     and add a comment with the old value and which GDD changed it.
+#   - source: is the authoritative GDD — the one that "owns" this fact.
+#     Other GDDs that reference it list themselves in referenced_by.
+#   - When a new GDD references an existing entry, append its path to
+#     referenced_by. Do not create a duplicate entry.
+#
+# WRITTEN BY: /design-system (Phase 5 — after GDD sections are approved)
+#             /consistency-check (when resolving conflicts)
+# READ BY:    /design-system (Phase 2 — before authoring begins, and after
+#               Section C/D writes to conflict-check new entities/formulas)
+#             /consistency-check (primary input — grep-first, GDD-second)
+#             /review-all-gdds (Phase 1 — baseline for Phase 2 checks)
+#             /architecture-review (data structure and interface validation)
+#
+# SEARCH PATTERNS (for skills using Grep):
+#   All entity names:        Grep pattern="^  - name:" path="design/registry/entities.yaml"
+#   What container.md owns:  Grep pattern="source: design/gdd/container.md"
+#   Deprecated entries:      Grep pattern="status: deprecated"
+#
+# FORMAT: YAML. Sections: entities | items | formulas | constants
+#   Each entry: name, status, source, referenced_by[], attributes{}, added, revised
+# Normative upstream: design/confirmed-mechanics-spec.md (spec). Values here
+# were written into GDDs on 2026-09-20 from that spec or from decisions made
+# the same day; MVP tuning values are marked tuning: true and may change.
+
+version: 1
+last_updated: "2026-09-20"
+
+# ─── ENTITIES ────────────────────────────────────────────────────────────────
+# Named game-world objects. Equilibrium has no NPC/enemy entities; machine
+# archetypes referenced by several GDDs are registered here.
+
+entities:
+  - name: fuel_engine
+    status: active
+    source: design/gdd/mechanical-power.md
+    referenced_by:
+      - design/gdd/mechanical-power.md
+      - design/gdd/machine-processing.md
+      - design/gdd/economy-ledger.md
+      - design/gdd/machine-inspection-ui.md
+      - design/gdd/tech-unlock.md
+    kind: power_source
+    omega_src_rad_s: 10
+    tau_max_Nm: 40
+    eta_engine: 0.25
+    fuel_input: equilibrium:wood
+    tuning: true
+    added: 2026-09-20
+    revised: ""
+
+  - name: saw
+    status: active
+    source: design/gdd/machine-processing.md
+    referenced_by:
+      - design/gdd/machine-processing.md
+      - design/gdd/mechanical-power.md
+      - design/gdd/economy-ledger.md
+      - design/gdd/tech-unlock.md
+      - design/gdd/tutorial-task.md
+    kind: processing_machine
+    tau_req_Nm: 30
+    recipe: log_to_plank
+    tuning: true
+    added: 2026-09-20
+    revised: ""
+
+# ─── ITEMS ───────────────────────────────────────────────────────────────────
+
+items:
+  - name: equilibrium:log
+    status: active
+    source: design/gdd/market-interface.md
+    referenced_by:
+      - design/gdd/market-interface.md
+      - design/gdd/machine-processing.md
+      - design/gdd/economy-ledger.md
+    base_price: 5
+    category: raw_material
+    tuning: true
+    added: 2026-09-20
+    revised: ""
+
+  - name: equilibrium:plank
+    status: active
+    source: design/gdd/market-interface.md
+    referenced_by:
+      - design/gdd/market-interface.md
+      - design/gdd/machine-processing.md
+      - design/gdd/economy-ledger.md
+      - design/gdd/tech-unlock.md
+      - design/gdd/tutorial-task.md
+    base_price: 10
+    max_sell_volume_per_window: 200
+    category: product
+    tuning: true
+    added: 2026-09-20
+    revised: ""
+
+  - name: equilibrium:wood
+    status: active
+    source: design/gdd/mechanical-power.md
+    referenced_by:
+      - design/gdd/mechanical-power.md
+      - design/gdd/market-interface.md
+      - design/gdd/item-registry.md
+      - design/gdd/conveyor.md
+      - design/gdd/tick-simulation.md
+    base_price: 2
+    energy_J: 8000
+    category: fuel
+    notes: "Also the canonical example ItemId in spec s2 and the worked example item in conveyor/tick examples."
+    tuning: true
+    added: 2026-09-20
+    revised: ""
+
+  - name: equilibrium:blocker
+    status: active
+    source: design/gdd/flow-blocker.md
+    referenced_by:
+      - design/gdd/flow-blocker.md
+      - design/gdd/placement-editing.md
+      - design/gdd/glass-pipe.md
+      - design/gdd/blueprint.md
+    base_price: 1
+    notes: "Final ItemId and visuals TBD (spec s19); one logical item, two carrier skins (spec s20)."
+    tuning: true
+    added: 2026-09-20
+    revised: ""
+
+# ─── FORMULAS ────────────────────────────────────────────────────────────────
+
+formulas:
+  - name: effective_capacity
+    status: active
+    source: design/gdd/container.md
+    referenced_by:
+      - design/gdd/container.md
+      - design/gdd/item-registry.md
+      - design/gdd/conveyor.md
+      - design/gdd/item-io-accessor.md
+      - design/gdd/group-processing-devices.md
+    variables: [slot.capacity, itemDef.maxStack]
+    output_range: [1, 3000]
+    expression: "min(slot.capacity, itemDef.maxStack)"
+    notes: "spec s6.1.1. All acceptance math uses this, never raw slot.capacity."
+    added: 2026-09-20
+    revised: ""
+
+  - name: accessor_exact
+    status: active
+    source: design/gdd/item-io-accessor.md
+    referenced_by:
+      - design/gdd/item-io-accessor.md
+      - design/gdd/conveyor.md
+    variables: [sourceCount, amount, acceptable]
+    output_range: [0, 3000]
+    expression: "amount if sourceCount >= amount and acceptable >= amount else 0"
+    notes: "spec s8.4"
+    added: 2026-09-20
+    revised: ""
+
+  - name: accessor_upto
+    status: active
+    source: design/gdd/item-io-accessor.md
+    referenced_by:
+      - design/gdd/item-io-accessor.md
+    variables: [sourceCount, amount, acceptable]
+    output_range: [0, 3000]
+    expression: "min(sourceCount, amount, acceptable)"
+    notes: "spec s8.5"
+    added: 2026-09-20
+    revised: ""
+
+  - name: accessor_keep
+    status: active
+    source: design/gdd/item-io-accessor.md
+    referenced_by:
+      - design/gdd/item-io-accessor.md
+      - design/gdd/tech-unlock.md
+    variables: [sourceCount, amount, acceptable]
+    output_range: [0, 3000]
+    expression: "min(max(sourceCount - amount, 0), 3000, acceptable)"
+    notes: "spec s8.6; amount = desired remaining stock"
+    added: 2026-09-20
+    revised: ""
+
+  - name: mechanical_power
+    status: active
+    source: design/gdd/mechanical-power.md
+    referenced_by:
+      - design/gdd/mechanical-power.md
+      - design/gdd/machine-processing.md
+      - design/gdd/economy-ledger.md
+      - design/gdd/machine-inspection-ui.md
+    variables: [tau, omega]
+    output_range: [0, 100000]
+    expression: "P = tau * omega"
+    notes: "spec s16; Tier 1 content stays under 1e5 W"
+    added: 2026-09-20
+    revised: ""
+
+  - name: gear_pair
+    status: active
+    source: design/gdd/mechanical-power.md
+    referenced_by:
+      - design/gdd/mechanical-power.md
+      - design/gdd/tech-unlock.md
+    variables: [omega_in, tau_in_max, N_in, N_out, eta_gear]
+    output_range: [0, 100000]
+    expression: "r = N_out/N_in; omega_out = omega_in / r; tau_out_max = tau_in_max * r * eta_gear; direction flips"
+    added: 2026-09-20
+    revised: ""
+
+  - name: delivered_power
+    status: active
+    source: design/gdd/mechanical-power.md
+    referenced_by:
+      - design/gdd/mechanical-power.md
+      - design/gdd/machine-processing.md
+      - design/gdd/economy-ledger.md
+      - design/gdd/offline-progression.md
+    variables: [tau_req, omega_seg, eta_path, stalled]
+    output_range: [0, 100000]
+    expression: "P_recv = tau_req * omega_seg * eta_path if not stalled else 0"
+    added: 2026-09-20
+    revised: ""
+
+  - name: work_integration
+    status: active
+    source: design/gdd/machine-processing.md
+    referenced_by:
+      - design/gdd/machine-processing.md
+      - design/gdd/mechanical-power.md
+      - design/gdd/economy-ledger.md
+      - design/gdd/offline-progression.md
+    variables: [workDone, P_recv, workRequired]
+    output_range: [0, 20000]
+    expression: "workDone += P_recv * 1s; complete when workDone >= workRequired"
+    notes: "Decision 2026-09-20: pure power integration. energyPerBatch == workRequired exactly."
+    added: 2026-09-20
+    revised: ""
+
+  - name: fuel_consumption
+    status: active
+    source: design/gdd/mechanical-power.md
+    referenced_by:
+      - design/gdd/mechanical-power.md
+      - design/gdd/economy-ledger.md
+      - design/gdd/offline-progression.md
+    variables: [P_deliv_src, E_fuel, eta_engine]
+    output_range: [0, 10]
+    expression: "fuelPerTick = P_deliv_src / (E_fuel * eta_engine)"
+    added: 2026-09-20
+    revised: ""
+
+  - name: market_quote
+    status: active
+    source: design/gdd/market-interface.md
+    referenced_by:
+      - design/gdd/market-interface.md
+      - design/gdd/economy-ledger.md
+    variables: [basePrice, spreadFraction]
+    output_range: [0, 1000000]
+    expression: "bid = basePrice*(1 - s/2); ask = basePrice*(1 + s/2)"
+    notes: "Decision 2026-09-20: MVP LocalNpc = spread + volume limit, fixed prices"
+    added: 2026-09-20
+    revised: ""
+
+  - name: profit_window
+    status: active
+    source: design/gdd/economy-ledger.md
+    referenced_by:
+      - design/gdd/economy-ledger.md
+      - design/gdd/machine-inspection-ui.md
+      - design/gdd/build-hud.md
+      - design/gdd/tutorial-task.md
+      - design/gdd/tech-unlock.md
+    variables: [revenue_w, materialCost_w, fuelCost_w, otherCost_w]
+    output_range: [-1000000, 1000000]
+    expression: "profit_w = revenue_w - materialCost_w - fuelCost_w - otherCost_w"
+    added: 2026-09-20
+    revised: ""
+
+  - name: loss_attribution
+    status: active
+    source: design/gdd/economy-ledger.md
+    referenced_by:
+      - design/gdd/economy-ledger.md
+      - design/gdd/machine-inspection-ui.md
+    variables: [ticks_reason, rate_theoretical, outputValuePerBatch]
+    output_range: [0, 1000000]
+    expression: "loss(m, reason) = ticks(m, reason) * rate_theoretical(m) * outputValuePerBatch(m)"
+    notes: "Inspection Overview bottleneck = argmax over reasons in 60 s window"
+    added: 2026-09-20
+    revised: ""
+
+  - name: tick_tiebreak_seed
+    status: active
+    source: design/gdd/tick-simulation.md
+    referenced_by:
+      - design/gdd/tick-simulation.md
+      - design/gdd/conveyor.md
+      - design/gdd/machine-processing.md
+      - design/gdd/offline-progression.md
+    variables: [osEntropy_256, tickIndex]
+    output_range: [0, 18446744073709551615]
+    expression: "tickSeed = H(osEntropy_256 || tickIndex)"
+    notes: "Decision 2026-09-20: OS CSPRNG mixed per tick. MUST NOT derive from seed/save/tick/coords/ID alone (spec s1.3). Pathfinding tie-breaks do NOT use this."
+    added: 2026-09-20
+    revised: ""
+
+# ─── CONSTANTS ───────────────────────────────────────────────────────────────
+
+constants:
+  - name: tick_duration
+    status: active
+    source: design/gdd/tick-simulation.md
+    referenced_by:
+      - design/gdd/tick-simulation.md
+      - design/gdd/conveyor.md
+      - design/gdd/machine-processing.md
+      - design/gdd/mechanical-power.md
+      - design/gdd/save-load.md
+      - design/gdd/offline-progression.md
+    value: 1
+    unit: seconds
+    notes: "spec s1.1. Fixed; changing it invalidates every rate."
+    added: 2026-09-20
+    revised: ""
+
+  - name: conveyor_slot_capacity
+    status: active
+    source: design/gdd/conveyor.md
+    referenced_by:
+      - design/gdd/conveyor.md
+      - design/gdd/container.md
+      - design/gdd/item-io-accessor.md
+      - design/gdd/group-processing-devices.md
+    value: 3000
+    unit: items
+    notes: "spec s6.1.1, s7.1. Still bounded by effective_capacity."
+    added: 2026-09-20
+    revised: ""
+
+  - name: accessor_amount_max
+    status: active
+    source: design/gdd/item-io-accessor.md
+    referenced_by:
+      - design/gdd/item-io-accessor.md
+      - design/gdd/group-processing-devices.md
+    value: 3000
+    unit: items
+    notes: "spec s8.7"
+    added: 2026-09-20
+    revised: ""
+
+  - name: conveyor_min_segment_length
+    status: active
+    source: design/gdd/conveyor.md
+    referenced_by:
+      - design/gdd/conveyor.md
+      - design/gdd/placement-editing.md
+      - design/gdd/blueprint.md
+    value: 2
+    unit: cells
+    notes: "spec s7.1; applies per straight segment"
+    added: 2026-09-20
+    revised: ""
+
+  - name: conveyor_hops_per_tick
+    status: active
+    source: design/gdd/conveyor.md
+    referenced_by:
+      - design/gdd/conveyor.md
+      - design/gdd/placement-editing.md
+      - design/gdd/offline-progression.md
+    value: 1
+    unit: cells_per_tick
+    notes: "spec s7.3; Tier 1 fixed"
+    added: 2026-09-20
+    revised: ""
+
+  - name: item_id_regex
+    status: active
+    source: design/gdd/item-registry.md
+    referenced_by:
+      - design/gdd/item-registry.md
+      - design/gdd/save-load.md
+    value: "^[a-z0-9][a-z0-9._-]*:[a-z0-9][a-z0-9._/-]*$"
+    unit: regex
+    notes: "spec s2.2"
+    added: 2026-09-20
+    revised: ""
+
+  - name: default_namespace
+    status: active
+    source: design/gdd/item-registry.md
+    referenced_by:
+      - design/gdd/item-registry.md
+      - design/gdd/save-load.md
+      - design/gdd/market-server.md
+    value: "equilibrium"
+    unit: namespace
+    notes: "spec s2.3; may be omitted in config/display, never in runtime/save"
+    added: 2026-09-20
+    revised: ""
+
+  - name: default_machine_port_layout
+    status: active
+    source: design/gdd/grid-world.md
+    referenced_by:
+      - design/gdd/grid-world.md
+      - design/gdd/container.md
+      - design/gdd/machine-processing.md
+      - design/gdd/blueprint.md
+    value: "left=main_input right=main_output top=energy_or_rotation_input bottom=byproduct_output"
+    unit: layout
+    notes: "spec s6.5; rotates with the block"
+    added: 2026-09-20
+    revised: ""
+
+  - name: tile_canvas_px
+    status: active
+    source: design/confirmed-mechanics-spec.md
+    referenced_by:
+      - design/gdd/grid-world.md
+      - design/gdd/conveyor.md
+      - design/gdd/flow-blocker.md
+      - design/gdd/glass-pipe.md
+    value: 32
+    unit: pixels
+    notes: "spec s20; PPU 32, Point filter. Section 20 is to be relocated to technical-preferences (adoption plan 5b)."
+    added: 2026-09-20
+    revised: ""
+
+  - name: machine_state_set
+    status: active
+    source: design/gdd/machine-processing.md
+    referenced_by:
+      - design/gdd/machine-processing.md
+      - design/gdd/machine-inspection-ui.md
+      - design/gdd/economy-ledger.md
+      - design/gdd/conveyor.md
+    value: "Idle | Working | Blocked | Starved"
+    unit: enum
+    notes: "spec s9.2; all other causes are ReasonCodes"
+    added: 2026-09-20
+    revised: ""
+
+  - name: reason_code_priority
+    status: active
+    source: design/gdd/machine-inspection-ui.md
+    referenced_by:
+      - design/gdd/machine-inspection-ui.md
+      - design/gdd/build-hud.md
+    value: "SourceConflict > Stalled > NoFuel > OutputFull > NoReceivingPort > MissingInput > PortBindingMissing > others"
+    unit: order
+    added: 2026-09-20
+    revised: ""
+
+  - name: market_window_ticks
+    status: active
+    source: design/gdd/market-interface.md
+    referenced_by:
+      - design/gdd/market-interface.md
+      - design/gdd/economy-ledger.md
+      - design/gdd/offline-progression.md
+    value: 60
+    unit: ticks
+    tuning: true
+    added: 2026-09-20
+    revised: ""
+
+  - name: starting_currency
+    status: active
+    source: design/gdd/market-interface.md
+    referenced_by:
+      - design/gdd/market-interface.md
+      - design/gdd/tutorial-task.md
+    value: 500
+    unit: currency
+    tuning: true
+    added: 2026-09-20
+    revised: ""
+
+  - name: offline_cap_seconds
+    status: active
+    source: design/gdd/offline-progression.md
+    referenced_by:
+      - design/gdd/offline-progression.md
+      - design/gdd/save-load.md
+    value: 28800
+    unit: seconds
+    tuning: true
+    added: 2026-09-20
+    revised: ""

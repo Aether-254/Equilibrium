@@ -1,0 +1,21 @@
+info:
+  name: Cancel Order
+  type: http
+  seq: 3
+  tags: [orders, transaction]
+http:
+  method: POST
+  url: "{{baseUrl}}/v1/orders/{{orderId}}:cancel"
+  auth: inherit
+  params:
+    - name: orderId
+      value: "{{orderId}}"
+      type: path
+  headers:
+    - name: Idempotency-Key
+      value: order-cancel-example-0001
+settings:
+  encodeUrl: true
+  timeout: 20000
+docs: |-
+  Cancellation is idempotent and does not undo fills committed before cancellation.

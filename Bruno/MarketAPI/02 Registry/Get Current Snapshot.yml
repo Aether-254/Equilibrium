@@ -1,0 +1,18 @@
+info:
+  name: Get Current Registry Snapshot
+  type: http
+  seq: 1
+  tags: [registry]
+http:
+  method: GET
+  url: "{{baseUrl}}/v1/registry/snapshots/current?realmId={{realmId}}"
+  params:
+    - name: realmId
+      value: "{{realmId}}"
+      type: query
+  auth: inherit
+settings:
+  encodeUrl: true
+  timeout: 10000
+docs: |-
+  Returns the immutable effective Item/Tag/Add-on registry digest for a Realm.

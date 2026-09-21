@@ -1,0 +1,15 @@
+info:
+  name: Get Server
+  type: http
+  seq: 1
+  tags: [discovery, smoke]
+http:
+  method: GET
+  url: "{{baseUrl}}/v1/server"
+  auth:
+    type: none
+settings:
+  encodeUrl: true
+  timeout: 10000
+docs: |-
+  Returns stable server identity and trust mode. This route is public.

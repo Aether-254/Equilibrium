@@ -1,0 +1,22 @@
+info:
+  name: List Pending Settlements
+  type: http
+  seq: 1
+  tags: [settlements]
+http:
+  method: GET
+  url: "{{baseUrl}}/v1/settlements?state=PENDING&limit=100"
+  auth: inherit
+  params:
+    - name: state
+      value: PENDING
+      type: query
+    - name: limit
+      value: "100"
+      type: query
+settings:
+  encodeUrl: true
+  timeout: 10000
+docs: |-
+  Lists durable item deliveries, balance changes, releases, and contract rewards
+  that have not yet been acknowledged by the local save.

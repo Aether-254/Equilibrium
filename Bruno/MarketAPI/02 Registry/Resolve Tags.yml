@@ -1,0 +1,30 @@
+info:
+  name: Resolve Tags
+  type: http
+  seq: 3
+  tags: [registry, tags]
+http:
+  method: POST
+  url: "{{baseUrl}}/v1/registry/tags:resolve"
+  auth: inherit
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "snapshotDigest": "sha256:replace-with-current-snapshot",
+        "tagIds": [
+          "#equilibrium:ingot",
+          "#equilibrium:ingot/iron"
+        ],
+        "includeMembers": true,
+        "includeProvenance": true
+      }
+settings:
+  encodeUrl: true
+  timeout: 10000
+docs: |-
+  Resolves hierarchical Tags after Addon ADD/REMOVE operations. The response
+  includes parent Tags, effective members, and contribution provenance.

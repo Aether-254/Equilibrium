@@ -1,0 +1,393 @@
+# Architecture Decision Registry
+#
+# PURPOSE: Single source of truth for key architectural stances that all ADRs
+# must agree on. Skills check this before writing new ADRs to detect conflicts
+# at authoring time — before stories are created against contradictory decisions.
+#
+# RULES:
+#   - Register a stance when it constrains how OTHER systems must be built.
+#   - Never delete entries — set status: superseded_by: ADR-NNNN instead.
+#   - When a stance changes: update the entry, set revised:, add a comment with
+#     the old value, and run /architecture-review.
+#   - adr: is the authoritative source. Dependent ADRs list themselves in referenced_by.
+#
+# WRITTEN BY: /architecture-decision (Phase 5 — after ADR is approved)
+# READ BY:    /architecture-decision, /architecture-review, /create-stories, /dev-story
+#
+# SEARCH PATTERNS:
+#   All state owners:       Grep pattern="^  - state:"
+#   All signal contracts:   Grep pattern="pattern: event_bus"
+#   All forbidden patterns: Grep pattern="^  - pattern:"
+#   Superseded entries:     Grep pattern="status: superseded"
+
+version: 1
+last_updated: "2026-09-20"
+
+# ─── STATE OWNERSHIP ─────────────────────────────────────────────────────────
+
+state_ownership:
+  - state: world_state
+    status: active
+    owner_system: tick-simulation
+    adr: docs/architecture/adr-0001-tick-transaction-engine.md
+    interface: "IWorldView (read-only snapshot views); IWorldWriter (Commit phase only)"
+    write_access: tick-engine-commit-only
+    referenced_by:
+      - docs/architecture/adr-0001-tick-transaction-engine.md
+      - docs/architecture/adr-0004-world-data-model.md
+      - docs/architecture/adr-0005-save-format.md
+      - docs/architecture/adr-0007-simulation-presentation-split.md
+    added: 2026-09-20
+    revised: ""
+
+  - state: content_registry
+    status: active
+    owner_system: item-registry
+    adr: docs/architecture/adr-0003-item-identity-and-content-format.md
+    interface: "ContentRegistry (read-only after load); ItemId struct with interned Handle"
+    write_access: content-loader-only
+    referenced_by:
+      - docs/architecture/adr-0003-item-identity-and-content-format.md
+      - docs/architecture/adr-0004-world-data-model.md
+      - docs/architecture/adr-0005-save-format.md
+      - docs/architecture/adr-0008-market-backend-interface.md
+    added: 2026-09-20
+    revised: ""
+
+  - state: warehouse_escrow_currency
+    status: active
+    owner_system: market-interface
+    adr: docs/architecture/adr-0008-market-backend-interface.md
+    interface: "MarketSystem: warehouse Container, escrow table, reservations, local currency; read via IWorldView; mutate via tick transactions"
+    write_access: market-system-via-tick-engine
+    referenced_by:
+      - docs/architecture/adr-0008-market-backend-interface.md
+      - docs/architecture/adr-0005-save-format.md
+    added: 2026-09-20
+    revised: ""
+
+  - state: market_binding
+    status: active
+    owner_system: save-load
+    adr: docs/architecture/adr-0005-save-format.md
+    interface: "SaveDocument.header.marketBinding (mode + server identity); immutable without MigrationCredential"
+    write_access: world-creation-and-migration-credential-only
+    referenced_by:
+      - docs/architecture/adr-0005-save-format.md
+      - docs/architecture/adr-0008-market-backend-interface.md
+    added: 2026-09-20
+    revised: ""
+
+  - state: tie_break_rng
+    status: active
+    owner_system: tick-simulation
+    adr: docs/architecture/adr-0002-tie-break-entropy.md
+    interface: "ITieBreakSource.NextKey() during Resolve phase only; not persisted"
+    write_access: tie-break-source-only
+    referenced_by:
+      - docs/architecture/adr-0002-tie-break-entropy.md
+      - docs/architecture/adr-0001-tick-transaction-engine.md
+    added: 2026-09-20
+    revised: ""
+
+# ─── INTERFACE CONTRACTS ──────────────────────────────────────────────────────
+
+interfaces:
+  - contract: state_mutation
+    status: active
+    pattern: direct_call
+    producer: every simulation system
+    consumers:
+      - tick-simulation
+    adr: docs/architecture/adr-0001-tick-transaction-engine.md
+    signal_signature: "ITickSystem.Collect(in TickSnapshot, TransactionBuffer) -> Transaction{Source,Target,Payload,Priority,DependsOn,Validator}"
+    referenced_by:
+      - docs/architecture/adr-0001-tick-transaction-engine.md
+      - docs/architecture/adr-0004-world-data-model.md
+      - docs/architecture/adr-0008-market-backend-interface.md
+    added: 2026-09-20
+    revised: ""
+
+  - contract: committed_events
+    status: active
+    pattern: event_bus
+    producer: tick-simulation
+    consumers:
+      - presentation
+      - ui
+      - economy-ledger
+      - tech-unlock
+      - tutorial-task
+    adr: docs/architecture/adr-0001-tick-transaction-engine.md
+    signal_signature: "CommittedEvent{TransactionId, Payload, ReasonCode}; CommittedBatch per tick"
+    referenced_by:
+      - docs/architecture/adr-0001-tick-transaction-engine.md
+      - docs/architecture/adr-0006-ui-technology-stack.md
+      - docs/architecture/adr-0007-simulation-presentation-split.md
+      - docs/architecture/adr-0008-market-backend-interface.md
+    added: 2026-09-20
+    revised: ""
+
+  - contract: market_backend
+    status: active
+    pattern: direct_call
+    producer: market-interface (MarketSystem)
+    consumers:
+      - LocalNpcMarketBackend
+      - RemoteMarketBackend (deferred stub)
+    adr: docs/architecture/adr-0008-market-backend-interface.md
+    signal_signature: "IMarketBackend{GetQuote, SubmitExport(EscrowId,...), SubmitBuy(OrderId,...), PollReceipts, AcknowledgeReceipt, Connectivity, AdvanceWindow}"
+    referenced_by:
+      - docs/architecture/adr-0008-market-backend-interface.md
+    added: 2026-09-20
+    revised: ""
+
+  - contract: save_sections
+    status: active
+    pattern: direct_call
+    producer: save-load (SaveService)
+    consumers:
+      - every persisted system
+    adr: docs/architecture/adr-0005-save-format.md
+    signal_signature: "ISaveable{SectionKey, SectionVersion, Write(SaveWriter), Read(SaveReader)}; ISaveMigration{From,To,Apply}"
+    referenced_by:
+      - docs/architecture/adr-0005-save-format.md
+    added: 2026-09-20
+    revised: ""
+
+  - contract: content_sources
+    status: active
+    pattern: direct_call
+    producer: item-registry loader
+    consumers:
+      - ScriptableObject base pack
+      - JSON addon packs
+    adr: docs/architecture/adr-0003-item-identity-and-content-format.md
+    signal_signature: "IContentSource.Load() -> ContentPack; AddonManifest{Namespace, Version, DependsOn[], Modifies[]}"
+    referenced_by:
+      - docs/architecture/adr-0003-item-identity-and-content-format.md
+    added: 2026-09-20
+    revised: ""
+
+  - contract: ui_view_models
+    status: active
+    pattern: event_bus
+    producer: presenters (on CommittedBatch / SelectionChanged)
+    consumers:
+      - UI Toolkit panels via runtime data binding
+    adr: docs/architecture/adr-0006-ui-technology-stack.md
+    signal_signature: "IUiPresenter.OnTick(in CommittedBatch); OnSelection(BlockRef?)"
+    referenced_by:
+      - docs/architecture/adr-0006-ui-technology-stack.md
+    added: 2026-09-20
+    revised: ""
+
+# ─── PERFORMANCE BUDGETS ──────────────────────────────────────────────────────
+
+performance_budgets:
+  - target_fps: 120
+    total_frame_budget_ms: 8.3
+    platform: PC
+    adr: .claude/docs/technical-preferences.md
+    added: 2026-09-20
+    revised: ""
+
+  - system: tick-simulation
+    status: active
+    budget_ms: 4.0
+    adr: docs/architecture/adr-0001-tick-transaction-engine.md
+    notes: "Whole tick incl. all system Collect/Validate/Resolve/Commit for 10k conveyor transactions; zero steady-state GC alloc. Ticks are 1 Hz so this is per tick, not per frame; amortize across frames if needed."
+    referenced_by:
+      - docs/architecture/adr-0001-tick-transaction-engine.md
+    added: 2026-09-20
+    revised: ""
+
+  - system: presentation
+    status: active
+    budget_ms: 2.0
+    adr: docs/architecture/adr-0007-simulation-presentation-split.md
+    notes: "Per frame; 4k visible cells; <= 500 draw calls"
+    referenced_by:
+      - docs/architecture/adr-0007-simulation-presentation-split.md
+    added: 2026-09-20
+    revised: ""
+
+  - system: ui
+    status: active
+    budget_ms: 1.0
+    adr: docs/architecture/adr-0006-ui-technology-stack.md
+    notes: "Per frame with inspection panel open"
+    referenced_by:
+      - docs/architecture/adr-0006-ui-technology-stack.md
+    added: 2026-09-20
+    revised: ""
+
+# ─── API DECISIONS ───────────────────────────────────────────────────────────
+
+api_decisions:
+  - purpose: simulation_architecture
+    status: active
+    api: "Pure C# TickEngine in Equilibrium.Simulation (struct-of-arrays world)"
+    not: "MonoBehaviour-per-block; DOTS Entities (deferred)"
+    adr: docs/architecture/adr-0001-tick-transaction-engine.md
+    reason: "Atomic transactions, headless tests, offline recompute; DOTS knowledge risk HIGH at current scale"
+    referenced_by:
+      - docs/architecture/adr-0001-tick-transaction-engine.md
+      - docs/architecture/adr-0004-world-data-model.md
+    added: 2026-09-20
+    revised: ""
+
+  - purpose: tie_break_randomness
+    status: active
+    api: "System.Security.Cryptography.RandomNumberGenerator.Fill per tick -> SplitMix64 -> Xoshiro256**"
+    not: "UnityEngine.Random; System.Random(time); hash of world state; session-level seed"
+    adr: docs/architecture/adr-0002-tie-break-entropy.md
+    reason: "Spec s1.3 non-reproducibility"
+    referenced_by:
+      - docs/architecture/adr-0002-tie-break-entropy.md
+    added: 2026-09-20
+    revised: ""
+
+  - purpose: content_authoring
+    status: active
+    api: "ScriptableObject assets (base) + System.Text.Json addon packs -> one ContentRegistry; Addressables label load for base"
+    not: "JSON-only base; AssetBundle addons"
+    adr: docs/architecture/adr-0003-item-identity-and-content-format.md
+    reason: "Inspector ergonomics for base, text-only tooling for addons"
+    referenced_by:
+      - docs/architecture/adr-0003-item-identity-and-content-format.md
+    added: 2026-09-20
+    revised: ""
+
+  - purpose: save_serialization
+    status: active
+    api: "MessagePack-CSharp with AOT resolvers + LZ4; string keys; Extras dictionary for unknown fields"
+    not: "custom binary TLV; JSON+gzip (kept only as debug export)"
+    adr: docs/architecture/adr-0005-save-format.md
+    reason: "Compact and fast with unknown-field preservation"
+    referenced_by:
+      - docs/architecture/adr-0005-save-format.md
+    added: 2026-09-20
+    revised: ""
+
+  - purpose: screen_ui
+    status: active
+    api: "UI Toolkit (UIDocument, UXML/USS, runtime data binding)"
+    not: "UGUI Canvas; TextMeshPro; UI Toolkit world-space panels for markers"
+    adr: docs/architecture/adr-0006-ui-technology-stack.md
+    reason: "Unity 6 recommended path; declarative tabbed panels; tick-rate binding"
+    referenced_by:
+      - docs/architecture/adr-0006-ui-technology-stack.md
+    added: 2026-09-20
+    revised: ""
+
+  - purpose: world_markers
+    status: active
+    api: "SpriteRenderer / Tilemap overlays in Equilibrium.Presentation, single Sprite Atlas (Point filter, PPU 32)"
+    not: "UI Toolkit for world-space markers; per-marker materials"
+    adr: docs/architecture/adr-0007-simulation-presentation-split.md
+    reason: "Grid-aligned pixel art batching"
+    referenced_by:
+      - docs/architecture/adr-0007-simulation-presentation-split.md
+      - docs/architecture/adr-0006-ui-technology-stack.md
+    added: 2026-09-20
+    revised: ""
+
+  - purpose: logistics_motion
+    status: active
+    api: "Tick transactions with visual interpolation between committed positions"
+    not: "Box2D trigger colliders / Rigidbody2D for belts or items"
+    adr: docs/architecture/adr-0007-simulation-presentation-split.md
+    reason: "Spec s7.1: belts do not use the physics engine"
+    referenced_by:
+      - docs/architecture/adr-0007-simulation-presentation-split.md
+      - docs/architecture/adr-0001-tick-transaction-engine.md
+    added: 2026-09-20
+    revised: ""
+
+# ─── FORBIDDEN PATTERNS ──────────────────────────────────────────────────────
+
+forbidden_patterns:
+  - pattern: direct_world_state_write
+    status: active
+    description: "No code outside TickEngine.Commit (IWorldWriter) may mutate simulation state. Systems submit Transactions in Collect."
+    why: "Atomicity and snapshot semantics (tick-simulation GDD rules 2-5)."
+    adr: docs/architecture/adr-0001-tick-transaction-engine.md
+    added: 2026-09-20
+
+  - pattern: read_post_commit_state_during_collect
+    status: active
+    description: "Collect must read only the TickSnapshot; reading live world state during Collect is a SnapshotViolation."
+    why: "Order-independent results."
+    adr: docs/architecture/adr-0001-tick-transaction-engine.md
+    added: 2026-09-20
+
+  - pattern: predictable_tie_break_seed
+    status: active
+    description: "Tie-break ordering must never be derived from world seed, save state, tick index alone, coordinates, transaction IDs, or wall clock; never persist the RNG state."
+    why: "Spec s1.3 anti-manipulation requirement."
+    adr: docs/architecture/adr-0002-tie-break-entropy.md
+    added: 2026-09-20
+
+  - pattern: tie_break_source_in_editing_or_preview
+    status: active
+    description: "Pathfinding, preview, and any UI tie-break must use a deterministic comparator; ITieBreakSource is forbidden outside Resolve/completion rolls."
+    why: "Preview must not flicker (placement-editing rule 20)."
+    adr: docs/architecture/adr-0002-tie-break-entropy.md
+    added: 2026-09-20
+
+  - pattern: index_based_serialization
+    status: active
+    description: "Saves and content data must reference containers/slots/ports by stable string keys, never array indices; items by canonical ItemId string."
+    why: "Content updates reorder arrays (container GDD rule 6)."
+    adr: docs/architecture/adr-0005-save-format.md
+    added: 2026-09-20
+
+  - pattern: persist_tag_expansion
+    status: active
+    description: "Never save expanded Tag membership or TagIds in place of concrete ItemIds."
+    why: "Spec s2A.6."
+    adr: docs/architecture/adr-0003-item-identity-and-content-format.md
+    added: 2026-09-20
+
+  - pattern: unity_types_in_simulation_assembly
+    status: active
+    description: "Equilibrium.Simulation, Equilibrium.Content, Equilibrium.Editing must not reference UnityEngine (beyond an explicitly approved math module if unavoidable)."
+    why: "Headless tests and offline recompute."
+    adr: docs/architecture/adr-0007-simulation-presentation-split.md
+    added: 2026-09-20
+
+  - pattern: physics_driven_logistics
+    status: active
+    description: "No colliders, rigidbodies, or physics callbacks for belts, items, pipes, or machines."
+    why: "Spec s7.1; determinism."
+    adr: docs/architecture/adr-0007-simulation-presentation-split.md
+    added: 2026-09-20
+
+  - pattern: visuals_inferring_state
+    status: active
+    description: "Presentation and UI may not derive or cache simulation truth from animation state; they consume CommittedEvents and IWorldView only."
+    why: "Spec s1.1; glass-pipe rule 'visual never decides physics'."
+    adr: docs/architecture/adr-0007-simulation-presentation-split.md
+    added: 2026-09-20
+
+  - pattern: ledger_writes_to_market
+    status: active
+    description: "EconomyLedger consumes market events; it never calls IMarketBackend or MarketSystem."
+    why: "Breaks the economy-ledger <-> market-interface cycle."
+    adr: docs/architecture/adr-0008-market-backend-interface.md
+    added: 2026-09-20
+
+  - pattern: ugui_for_new_ui
+    status: active
+    description: "No new UGUI Canvas UI. All screen-space UI is UI Toolkit."
+    why: "Single UI stack; Unity 6 guidance."
+    adr: docs/architecture/adr-0006-ui-technology-stack.md
+    added: 2026-09-20
+
+  - pattern: editor_code_in_player_assemblies
+    status: active
+    description: "Bake tools and editor utilities live only in Equilibrium.Editor (Assets/Editor)."
+    why: "Spec s20."
+    adr: docs/architecture/adr-0007-simulation-presentation-split.md
+    added: 2026-09-20

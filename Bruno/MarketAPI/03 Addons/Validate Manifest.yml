@@ -1,0 +1,46 @@
+info:
+  name: Validate Addon Manifest
+  type: http
+  seq: 1
+  tags: [addons]
+http:
+  method: POST
+  url: "{{baseUrl}}/v1/addons/manifests:validate"
+  auth: inherit
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "namespace": "farmer_addon",
+        "version": "1.0.0",
+        "fingerprint": "sha256:farmer-addon-example",
+        "declaredImpact": "ADDITIVE",
+        "dependencies": [
+          { "namespace": "equilibrium", "versionRange": ">=0.1.0 <1.0.0" }
+        ],
+        "modifications": [],
+        "items": [
+          {
+            "itemId": "farmer_addon:seed",
+            "maxStack": "3000",
+            "marketTradable": true
+          }
+        ],
+        "tagOperations": [
+          {
+            "operation": "ADD",
+            "tagId": "#common:seed",
+            "itemId": "farmer_addon:seed"
+          }
+        ],
+        "recipeRegistryFingerprint": "sha256:farmer-recipes-example",
+        "requestedRealmPolicy": "SHARE_IF_COMPATIBLE"
+      }
+settings:
+  encodeUrl: true
+  timeout: 20000
+docs: |-
+  Performs data-only validation. The server must not execute uploaded Addon code.

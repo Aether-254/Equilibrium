@@ -1,0 +1,19 @@
+info:
+  name: Get Migration
+  type: http
+  seq: 2
+  tags: [migration]
+http:
+  method: GET
+  url: "{{baseUrl}}/v1/migrations/{{migrationId}}"
+  auth: inherit
+  params:
+    - name: migrationId
+      value: "{{migrationId}}"
+      type: path
+settings:
+  encodeUrl: true
+  timeout: 10000
+docs: |-
+  Polls REQUESTED/PREPARING/READY/REDEEMED/REJECTED/EXPIRED state. The signed
+  credential is present only when READY.

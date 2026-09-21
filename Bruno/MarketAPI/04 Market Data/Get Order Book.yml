@@ -1,0 +1,25 @@
+info:
+  name: Get Order Book
+  type: http
+  seq: 2
+  tags: [market-data]
+http:
+  method: GET
+  url: "{{baseUrl}}/v1/realms/{{realmId}}/instruments/{{instrumentId}}/order-book?depth=50"
+  params:
+    - name: realmId
+      value: "{{realmId}}"
+      type: path
+    - name: instrumentId
+      value: "{{instrumentId}}"
+      type: path
+    - name: depth
+      value: "50"
+      type: query
+  auth: inherit
+settings:
+  encodeUrl: true
+  timeout: 10000
+docs: |-
+  Reads the current local-Realm aggregated order book. Cached data is not a
+  guaranteed execution quote.

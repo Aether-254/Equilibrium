@@ -1,0 +1,212 @@
+asyncapi: 3.0.0
+info:
+  title: Equilibrium Market Event Stream
+  version: 0.1.0-design
+  description: |
+    Resumable WSS notifications for Market Server state changes. HTTP remains
+    authoritative; a client performs HTTP resynchronization when its cursor has
+    expired or an event gap is detected.
+servers:
+  production:
+    host: market.example.invalid
+    protocol: wss
+    pathname: /v1/events
+    description: Non-routable example server.
+channels:
+  marketEvents:
+    address: /v1/events
+    messages:
+      marketInstrumentUpdated:
+        $ref: "#/components/messages/MarketInstrumentUpdated"
+      marketTradeExecuted:
+        $ref: "#/components/messages/MarketTradeExecuted"
+      orderUpdated:
+        $ref: "#/components/messages/OrderUpdated"
+      exportUpdated:
+        $ref: "#/components/messages/ExportUpdated"
+      settlementCreated:
+        $ref: "#/components/messages/SettlementCreated"
+      balanceUpdated:
+        $ref: "#/components/messages/BalanceUpdated"
+      contractUpdated:
+        $ref: "#/components/messages/ContractUpdated"
+      realmUpdated:
+        $ref: "#/components/messages/RealmUpdated"
+      registrySnapshotPublished:
+        $ref: "#/components/messages/RegistrySnapshotPublished"
+      serverMaintenanceUpdated:
+        $ref: "#/components/messages/ServerMaintenanceUpdated"
+      migrationUpdated:
+        $ref: "#/components/messages/MigrationUpdated"
+      streamResyncRequired:
+        $ref: "#/components/messages/StreamResyncRequired"
+operations:
+  receiveMarketEvents:
+    action: receive
+    channel:
+      $ref: "#/channels/marketEvents"
+    summary: Receive resumable Market Server notifications.
+components:
+  schemas:
+    EventEnvelope:
+      type: object
+      required: [eventId, cursor, type, occurredAt, subject, data]
+      properties:
+        eventId:
+          type: string
+        cursor:
+          type: string
+          description: Opaque resume cursor acknowledged only after local processing.
+        type:
+          type: string
+        occurredAt:
+          type: string
+          format: date-time
+        realmId:
+          type: [string, "null"]
+        subject:
+          type: string
+        data:
+          type: object
+          additionalProperties: true
+    MarketInstrumentUpdatedData:
+      type: object
+      required: [instrumentId, state, sequence]
+      properties:
+        instrumentId:
+          type: string
+        state:
+          enum: [ACTIVE, HALTED, READ_ONLY, CLOSED]
+        sequence:
+          type: string
+    TradeExecutedData:
+      type: object
+      required: [tradeId, instrumentId, price, quantity]
+      properties:
+        tradeId:
+          type: string
+        instrumentId:
+          type: string
+        price:
+          type: object
+          additionalProperties: true
+        quantity:
+          type: string
+    EntityUpdatedData:
+      type: object
+      required: [id, state, version]
+      properties:
+        id:
+          type: string
+        state:
+          type: string
+        version:
+          type: string
+    ResyncRequiredData:
+      type: object
+      required: [reason, httpResources]
+      properties:
+        reason:
+          enum: [CURSOR_EXPIRED, EVENT_GAP, SERVER_RESET]
+        httpResources:
+          type: array
+          items:
+            type: string
+  messages:
+    MarketInstrumentUpdated:
+      name: market.instrument.updated
+      payload:
+        allOf:
+          - $ref: "#/components/schemas/EventEnvelope"
+          - type: object
+            properties:
+              type:
+                const: market.instrument.updated
+              data:
+                $ref: "#/components/schemas/MarketInstrumentUpdatedData"
+    MarketTradeExecuted:
+      name: market.trade.executed
+      payload:
+        allOf:
+          - $ref: "#/components/schemas/EventEnvelope"
+          - type: object
+            properties:
+              type:
+                const: market.trade.executed
+              data:
+                $ref: "#/components/schemas/TradeExecutedData"
+    OrderUpdated:
+      name: order.updated
+      payload:
+        allOf:
+          - $ref: "#/components/schemas/EventEnvelope"
+          - type: object
+            properties:
+              type:
+                const: order.updated
+              data:
+                $ref: "#/components/schemas/EntityUpdatedData"
+    ExportUpdated:
+      name: export.updated
+      payload:
+        allOf:
+          - $ref: "#/components/schemas/EventEnvelope"
+          - type: object
+            properties:
+              type:
+                const: export.updated
+              data:
+                $ref: "#/components/schemas/EntityUpdatedData"
+    SettlementCreated:
+      name: settlement.created
+      payload:
+        allOf:
+          - $ref: "#/components/schemas/EventEnvelope"
+          - type: object
+            properties:
+              type:
+                const: settlement.created
+              data:
+                $ref: "#/components/schemas/EntityUpdatedData"
+    BalanceUpdated:
+      name: balance.updated
+      payload:
+        $ref: "#/components/schemas/EventEnvelope"
+    ContractUpdated:
+      name: contract.updated
+      payload:
+        $ref: "#/components/schemas/EventEnvelope"
+    RealmUpdated:
+      name: realm.updated
+      payload:
+        $ref: "#/components/schemas/EventEnvelope"
+    RegistrySnapshotPublished:
+      name: registry.snapshot.published
+      payload:
+        $ref: "#/components/schemas/EventEnvelope"
+    ServerMaintenanceUpdated:
+      name: server.maintenance.updated
+      payload:
+        $ref: "#/components/schemas/EventEnvelope"
+    MigrationUpdated:
+      name: migration.updated
+      payload:
+        allOf:
+          - $ref: "#/components/schemas/EventEnvelope"
+          - type: object
+            properties:
+              type:
+                const: migration.updated
+              data:
+                $ref: "#/components/schemas/EntityUpdatedData"
+    StreamResyncRequired:
+      name: stream.resync-required
+      payload:
+        allOf:
+          - $ref: "#/components/schemas/EventEnvelope"
+          - type: object
+            properties:
+              type:
+                const: stream.resync-required
+              data:
+                $ref: "#/components/schemas/ResyncRequiredData"

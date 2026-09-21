@@ -1,0 +1,37 @@
+info:
+  name: Evaluate Compatibility Profile
+  type: http
+  seq: 1
+  tags: [compatibility]
+http:
+  method: POST
+  url: "{{baseUrl}}/v1/compatibility/evaluations"
+  auth:
+    type: none
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "gameVersion": "0.1.0",
+        "marketProtocolVersion": 1,
+        "saveId": "save-example-001",
+        "itemRegistryFingerprint": "sha256:item-registry-example",
+        "recipeRegistryFingerprint": "sha256:recipe-registry-example",
+        "addons": [
+          {
+            "namespace": "farmer_addon",
+            "version": "1.0.0",
+            "fingerprint": "sha256:farmer-addon-example",
+            "declaredImpact": "ADDITIVE"
+          }
+        ]
+      }
+settings:
+  encodeUrl: true
+  timeout: 10000
+docs: |-
+  Returns ALLOW, ISOLATE, ALLOW_RESTRICTED, or REJECT plus the required Realm
+  and immutable registry snapshot digest.

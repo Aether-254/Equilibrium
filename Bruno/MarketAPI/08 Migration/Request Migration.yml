@@ -1,0 +1,29 @@
+info:
+  name: Request Migration
+  type: http
+  seq: 1
+  tags: [migration, transaction]
+http:
+  method: POST
+  url: "{{baseUrl}}/v1/migrations"
+  auth: inherit
+  headers:
+    - name: Content-Type
+      value: application/json
+    - name: Idempotency-Key
+      value: migration-request-example-0001
+  body:
+    type: json
+    data: |-
+      {
+        "saveId": "save-example-001",
+        "destinationPolicy": "RECOMMENDED_SERVERS",
+        "requestedDestinationServerId": null,
+        "requestedDestinationRealmId": null
+      }
+settings:
+  encodeUrl: true
+  timeout: 20000
+docs: |-
+  Requests the currently bound server to freeze affected market state and prepare
+  a signed, single-use migration credential.

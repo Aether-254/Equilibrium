@@ -1,0 +1,35 @@
+info:
+  name: Import Migration
+  type: http
+  seq: 3
+  tags: [migration, transaction]
+http:
+  method: POST
+  url: "{{baseUrl}}/v1/migration-imports"
+  auth: inherit
+  headers:
+    - name: Content-Type
+      value: application/json
+    - name: Idempotency-Key
+      value: migration-import-example-0001
+  body:
+    type: json
+    data: |-
+      {
+        "credential": "replace-with-source-signed-credential",
+        "destinationRealmId": "{{realmId}}",
+        "destinationCompatibilityProfile": {
+          "gameVersion": "0.1.0",
+          "marketProtocolVersion": 1,
+          "saveId": "save-example-001",
+          "itemRegistryFingerprint": "sha256:item-registry-example",
+          "recipeRegistryFingerprint": "sha256:recipe-registry-example",
+          "addons": []
+        }
+      }
+settings:
+  encodeUrl: true
+  timeout: 30000
+docs: |-
+  The destination validates the credential, evaluates compatibility, and atomically
+  redeems the source nonce before establishing the new binding.

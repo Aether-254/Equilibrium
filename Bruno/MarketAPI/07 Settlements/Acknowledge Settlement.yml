@@ -1,0 +1,32 @@
+info:
+  name: Acknowledge Settlement
+  type: http
+  seq: 2
+  tags: [settlements, transaction]
+http:
+  method: POST
+  url: "{{baseUrl}}/v1/settlements/{{settlementId}}:acknowledge"
+  auth: inherit
+  params:
+    - name: settlementId
+      value: "{{settlementId}}"
+      type: path
+  headers:
+    - name: Content-Type
+      value: application/json
+    - name: Idempotency-Key
+      value: settlement-ack-example-0001
+  body:
+    type: json
+    data: |-
+      {
+        "localTransactionId": "local-tx-settlement-0001",
+        "localStateDigest": "sha256:local-state-after-application",
+        "appliedAt": "2026-09-20T12:00:00Z"
+      }
+settings:
+  encodeUrl: true
+  timeout: 20000
+docs: |-
+  Acknowledges one exact local application. Retrying cannot create a second
+  warehouse delivery.

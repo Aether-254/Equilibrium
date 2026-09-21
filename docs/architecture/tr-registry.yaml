@@ -1,0 +1,580 @@
+# Technical Requirement ID Registry
+#
+# PURPOSE: Persistent, stable IDs for every GDD technical requirement.
+# RULES: IDs are PERMANENT. Never renumber, never delete (status: deprecated).
+#   Append new entries at the END of each system's list.
+#   Reworded (same intent): update requirement text + revised date.
+#   Removed: status: deprecated. Split/replaced: status: superseded-by: TR-x-NNN.
+# WRITTEN BY: /architecture-review    READ BY: /create-stories, /story-done, /story-readiness
+# ID FORMAT: TR-[system-slug]-[NNN]
+# STATUS VALUES: active | deprecated | superseded-by: TR-[system]-NNN
+
+version: 1
+last_updated: "2026-09-20"
+
+requirements:
+  # ── tick-simulation ──
+  - id: TR-tick-001
+    system: tick-simulation
+    gdd: design/gdd/tick-simulation.md
+    requirement: "1 tick = 1 s simulated; all state changes are transactions collected against a tick-start snapshot"
+    adrs: [ADR-0001]
+    created: 2026-09-20
+    revised: ""
+    status: active
+  - id: TR-tick-002
+    system: tick-simulation
+    gdd: design/gdd/tick-simulation.md
+    requirement: "Commit is atomic per transaction; dependency failure cascades; loser payload stays at source"
+    adrs: [ADR-0001]
+    created: 2026-09-20
+    revised: ""
+    status: active
+  - id: TR-tick-003
+    system: tick-simulation
+    gdd: design/gdd/tick-simulation.md
+    requirement: "Equal-priority conflicts ordered by non-reproducible per-tick entropy not derivable from seed/save/tick/coords/IDs"
+    adrs: [ADR-0002]
+    created: 2026-09-20
+    revised: ""
+    status: active
+  - id: TR-tick-004
+    system: tick-simulation
+    gdd: design/gdd/tick-simulation.md
+    requirement: "Visual and ledger systems consume emitted committed events only"
+    adrs: [ADR-0001, ADR-0007]
+    created: 2026-09-20
+    revised: ""
+    status: active
+  - id: TR-tick-005
+    system: tick-simulation
+    gdd: design/gdd/tick-simulation.md
+    requirement: "10,000 conveyor transactions per tick under 4 ms; zero steady-state allocation"
+    adrs: [ADR-0001]
+    created: 2026-09-20
+    revised: ""
+    status: active
+
+  # ── item-registry ──
+  - id: TR-item-001
+    system: item-registry
+    gdd: design/gdd/item-registry.md
+    requirement: "ItemId namespace:path lowercase regex; equilibrium: default may be omitted only in config/display"
+    adrs: [ADR-0003]
+    created: 2026-09-20
+    revised: ""
+    status: active
+  - id: TR-item-002
+    system: item-registry
+    gdd: design/gdd/item-registry.md
+    requirement: "Duplicate ItemId hard error; offending Addon refuses load"
+    adrs: [ADR-0003]
+    created: 2026-09-20
+    revised: ""
+    status: active
+  - id: TR-item-003
+    system: item-registry
+    gdd: design/gdd/item-registry.md
+    requirement: "Hierarchical Tags with / inclusion; references; cycle is hard error; remove beats add; child removal on parent removal"
+    adrs: [ADR-0003]
+    created: 2026-09-20
+    revised: ""
+    status: active
+  - id: TR-item-004
+    system: item-registry
+    gdd: design/gdd/item-registry.md
+    requirement: "Addon manifest namespace and declared modifies/dependsOn; topological load; cycles and undeclared cross-namespace edits refuse load"
+    adrs: [ADR-0003]
+    created: 2026-09-20
+    revised: ""
+    status: active
+  - id: TR-item-005
+    system: item-registry
+    gdd: design/gdd/item-registry.md
+    requirement: "UnknownItem preserves full ItemId, count, extra data for missing namespaces"
+    adrs: [ADR-0003, ADR-0005]
+    created: 2026-09-20
+    revised: ""
+    status: active
+
+  # ── grid-world ──
+  - id: TR-grid-001
+    system: grid-world
+    gdd: design/gdd/grid-world.md
+    requirement: "Strict 2D integer grid; one block per cell; four orientations"
+    adrs: [ADR-0004]
+    created: 2026-09-20
+    revised: ""
+    status: active
+  - id: TR-grid-002
+    system: grid-world
+    gdd: design/gdd/grid-world.md
+    requirement: "Block attributes vanish on removal; persistent attributes travel with the drop and restore on re-place"
+    adrs: [ADR-0004, ADR-0005]
+    created: 2026-09-20
+    revised: ""
+    status: active
+  - id: TR-grid-003
+    system: grid-world
+    gdd: design/gdd/grid-world.md
+    requirement: "Connections only via facing output Port to adjacent compatible input Port with ingress enabled; no proximity inference"
+    adrs: [ADR-0004]
+    created: 2026-09-20
+    revised: ""
+    status: active
+  - id: TR-grid-004
+    system: grid-world
+    gdd: design/gdd/grid-world.md
+    requirement: "Rotation rotates all Ports; default layout left in / right out / top power / bottom byproduct"
+    adrs: [ADR-0004]
+    created: 2026-09-20
+    revised: ""
+    status: active
+
+  # ── container ──
+  - id: TR-cont-001
+    system: container
+    gdd: design/gdd/container.md
+    requirement: "effectiveCapacity = min(slot.capacity, itemDef.maxStack) for all acceptance math"
+    adrs: [ADR-0004]
+    created: 2026-09-20
+    revised: ""
+    status: active
+  - id: TR-cont-002
+    system: container
+    gdd: design/gdd/container.md
+    requirement: "Slot allow/deny filters by ItemId or Tag; deny beats allow"
+    adrs: [ADR-0004, ADR-0003]
+    created: 2026-09-20
+    revised: ""
+    status: active
+  - id: TR-cont-003
+    system: container
+    gdd: design/gdd/container.md
+    requirement: "Deterministic insertion: existing-same-item ascending index, then empty ascending; at most one auto-tidy per transaction"
+    adrs: [ADR-0004]
+    created: 2026-09-20
+    revised: ""
+    status: active
+  - id: TR-cont-004
+    system: container
+    gdd: design/gdd/container.md
+    requirement: "Ports bind containers/slots by stable string keys; never array indices in saves or content"
+    adrs: [ADR-0004, ADR-0005]
+    created: 2026-09-20
+    revised: ""
+    status: active
+  - id: TR-cont-005
+    system: container
+    gdd: design/gdd/container.md
+    requirement: "Plain containers never connect directly to belts; exchange only via accessors"
+    adrs: [ADR-0004]
+    created: 2026-09-20
+    revised: ""
+    status: active
+
+  # ── save-load ──
+  - id: TR-save-001
+    system: save-load
+    gdd: design/gdd/save-load.md
+    requirement: "Save only at tick boundary; all-or-nothing load; original untouched on failure"
+    adrs: [ADR-0005, ADR-0001]
+    created: 2026-09-20
+    revised: ""
+    status: active
+  - id: TR-save-002
+    system: save-load
+    gdd: design/gdd/save-load.md
+    requirement: "schemaVersion with ordered migrations; unknown fields preserved; refuse newer schema"
+    adrs: [ADR-0005]
+    created: 2026-09-20
+    revised: ""
+    status: active
+  - id: TR-save-003
+    system: save-load
+    gdd: design/gdd/save-load.md
+    requirement: "Full ItemId strings; no Tag expansion; concrete ItemId for reserved inputs; RNG not saved"
+    adrs: [ADR-0005, ADR-0002]
+    created: 2026-09-20
+    revised: ""
+    status: active
+  - id: TR-save-004
+    system: save-load
+    gdd: design/gdd/save-load.md
+    requirement: "marketMode binding persisted; unchangeable without migration credential"
+    adrs: [ADR-0005, ADR-0008]
+    created: 2026-09-20
+    revised: ""
+    status: active
+  - id: TR-save-005
+    system: save-load
+    gdd: design/gdd/save-load.md
+    requirement: "Rotating backups; atomic temp+rename write"
+    adrs: [ADR-0005]
+    created: 2026-09-20
+    revised: ""
+    status: active
+
+  # ── mechanical-power ──
+  - id: TR-mech-001
+    system: mechanical-power
+    gdd: design/gdd/mechanical-power.md
+    requirement: "Tier 1 simulates omega, tau, P = tau*omega, gear ratio, direction, load, binary stall, efficiency; inertia etc. deferred"
+    adrs: [ADR-0001, ADR-0004]
+    created: 2026-09-20
+    revised: ""
+    status: active
+  - id: TR-mech-002
+    system: mechanical-power
+    gdd: design/gdd/mechanical-power.md
+    requirement: "Network = connected rotation ports; one speed per segment; two sources with mismatched speed fault SourceConflict"
+    adrs: [ADR-0004]
+    created: 2026-09-20
+    revised: ""
+    status: active
+  - id: TR-mech-003
+    system: mechanical-power
+    gdd: design/gdd/mechanical-power.md
+    requirement: "Fuel engine consumes fuel proportional to delivered power; NoFuel stops output next tick"
+    adrs: [ADR-0001]
+    created: 2026-09-20
+    revised: ""
+    status: active
+  - id: TR-mech-004
+    system: mechanical-power
+    gdd: design/gdd/mechanical-power.md
+    requirement: "5,000-element network solve under 1 ms"
+    adrs: [ADR-0004]
+    created: 2026-09-20
+    revised: ""
+    status: active
+
+  # ── conveyor ──
+  - id: TR-conv-001
+    system: conveyor
+    gdd: design/gdd/conveyor.md
+    requirement: "Cell = one-slot container cap 3000; one direction; segments >= 2 cells; no physics"
+    adrs: [ADR-0004, ADR-0007]
+    created: 2026-09-20
+    revised: ""
+    status: active
+  - id: TR-conv-002
+    system: conveyor
+    gdd: design/gdd/conveyor.md
+    requirement: "Whole-group movement one cell per tick; may enter a vacating cell same tick; never merge/split belt-to-belt"
+    adrs: [ADR-0001]
+    created: 2026-09-20
+    revised: ""
+    status: active
+  - id: TR-conv-003
+    system: conveyor
+    gdd: design/gdd/conveyor.md
+    requirement: "Stall derived per tick from this tick's validation with enumerated causes"
+    adrs: [ADR-0001]
+    created: 2026-09-20
+    revised: ""
+    status: active
+  - id: TR-conv-004
+    system: conveyor
+    gdd: design/gdd/conveyor.md
+    requirement: "Belt to container via accessor accepts partial; remainder stays and stalls"
+    adrs: [ADR-0001, ADR-0004]
+    created: 2026-09-20
+    revised: ""
+    status: active
+
+  # ── item-io-accessor ──
+  - id: TR-acc-001
+    system: item-io-accessor
+    gdd: design/gdd/item-io-accessor.md
+    requirement: "Three direction-worded flow modes; Auto resolves from belt direction"
+    adrs: [ADR-0004]
+    created: 2026-09-20
+    revised: ""
+    status: active
+  - id: TR-acc-002
+    system: item-io-accessor
+    gdd: design/gdd/item-io-accessor.md
+    requirement: "Exact / UpTo / Keep quantity formulas; amount 1..3000; no partial success in Exact"
+    adrs: [ADR-0001]
+    created: 2026-09-20
+    revised: ""
+    status: active
+  - id: TR-acc-003
+    system: item-io-accessor
+    gdd: design/gdd/item-io-accessor.md
+    requirement: "Merge onto belt only if target cell stalled and same ItemId, within effective capacity"
+    adrs: [ADR-0001, ADR-0004]
+    created: 2026-09-20
+    revised: ""
+    status: active
+
+  # ── machine-processing ──
+  - id: TR-mach-001
+    system: machine-processing
+    gdd: design/gdd/machine-processing.md
+    requirement: "Data-driven recipe schema: recipeId, machineId/Tag, inputs (Id or Tag), outputs, byproducts, workRequired"
+    adrs: [ADR-0003]
+    created: 2026-09-20
+    revised: ""
+    status: active
+  - id: TR-mach-002
+    system: machine-processing
+    gdd: design/gdd/machine-processing.md
+    requirement: "Reserve inputs at start; consume on completion; cancel releases unless irreversible"
+    adrs: [ADR-0001, ADR-0004]
+    created: 2026-09-20
+    revised: ""
+    status: active
+  - id: TR-mach-003
+    system: machine-processing
+    gdd: design/gdd/machine-processing.md
+    requirement: "workDone += P_recv * 1 s; complete at workRequired; one completion per tick; atomic batch output else Blocked"
+    adrs: [ADR-0001]
+    created: 2026-09-20
+    revised: ""
+    status: active
+  - id: TR-mach-004
+    system: machine-processing
+    gdd: design/gdd/machine-processing.md
+    requirement: "Four top-level states plus composable ReasonCodes; both visible in UI"
+    adrs: [ADR-0006]
+    created: 2026-09-20
+    revised: ""
+    status: active
+
+  # ── market-interface ──
+  - id: TR-mkt-001
+    system: market-interface
+    gdd: design/gdd/market-interface.md
+    requirement: "Replaceable IMarketBackend; per-save binding LocalNpc or RemoteServer"
+    adrs: [ADR-0008, ADR-0005]
+    created: 2026-09-20
+    revised: ""
+    status: active
+  - id: TR-mkt-002
+    system: market-interface
+    gdd: design/gdd/market-interface.md
+    requirement: "Sell = warehouse -> escrow local transaction -> idempotent settlement; unknown result never re-sold"
+    adrs: [ADR-0008, ADR-0001]
+    created: 2026-09-20
+    revised: ""
+    status: active
+  - id: TR-mkt-003
+    system: market-interface
+    gdd: design/gdd/market-interface.md
+    requirement: "Buy requires full warehouse capacity reservation; reject otherwise; no partial buys"
+    adrs: [ADR-0008, ADR-0004]
+    created: 2026-09-20
+    revised: ""
+    status: active
+  - id: TR-mkt-004
+    system: market-interface
+    gdd: design/gdd/market-interface.md
+    requirement: "MVP LocalNpc: fixed basePrice, bid/ask spread, per-window sell cap with FIFO escrow queue, buy cap rejects excess"
+    adrs: [ADR-0008, ADR-0003]
+    created: 2026-09-20
+    revised: ""
+    status: active
+
+  # ── economy-ledger ──
+  - id: TR-ledg-001
+    system: economy-ledger
+    gdd: design/gdd/economy-ledger.md
+    requirement: "Pure event consumer; rolling windows 60 s / 5 min / session / all-time; persisted aggregates"
+    adrs: [ADR-0001, ADR-0005]
+    created: 2026-09-20
+    revised: ""
+    status: active
+  - id: TR-ledg-002
+    system: economy-ledger
+    gdd: design/gdd/economy-ledger.md
+    requirement: "Profit, unit cost, energy-share fuel apportionment, loss attribution by ReasonCode formulas"
+    adrs: [ADR-0001]
+    created: 2026-09-20
+    revised: ""
+    status: active
+  - id: TR-ledg-003
+    system: economy-ledger
+    gdd: design/gdd/economy-ledger.md
+    requirement: "Never calls market backend (one-way)"
+    adrs: [ADR-0008]
+    created: 2026-09-20
+    revised: ""
+    status: active
+
+  # ── placement-editing ──
+  - id: TR-place-001
+    system: placement-editing
+    gdd: design/gdd/placement-editing.md
+    requirement: "Ghosts reserve cells and build when warehouse materials arrive; invalid release creates nothing and never mutates obstacles"
+    adrs: [ADR-0004, ADR-0001]
+    created: 2026-09-20
+    revised: ""
+    status: active
+  - id: TR-place-002
+    system: placement-editing
+    gdd: design/gdd/placement-editing.md
+    requirement: "Shift drag = single straight segment; min length 2; reverse hotkey affects preview only"
+    adrs: [ADR-0004]
+    created: 2026-09-20
+    revised: ""
+    status: active
+  - id: TR-place-003
+    system: placement-editing
+    gdd: design/gdd/placement-editing.md
+    requirement: "Free drag: budgeted orthogonal pathfinder, three objectives, reuse analysis with re-validation at commit, deterministic tie-break"
+    adrs: [ADR-0002, ADR-0004]
+    created: 2026-09-20
+    revised: ""
+    status: active
+  - id: TR-place-004
+    system: placement-editing
+    gdd: design/gdd/placement-editing.md
+    requirement: "Carry mode: single transaction move preserving persistent state and orientation; Type II auto-complete; Type I warning"
+    adrs: [ADR-0001, ADR-0004]
+    created: 2026-09-20
+    revised: ""
+    status: active
+
+  # ── machine-inspection-ui ──
+  - id: TR-insp-001
+    system: machine-inspection-ui
+    gdd: design/gdd/machine-inspection-ui.md
+    requirement: "Persistent status bar with top-priority ReasonCode; four tabs; reads committed snapshot at tick rate"
+    adrs: [ADR-0006]
+    created: 2026-09-20
+    revised: ""
+    status: active
+  - id: TR-insp-002
+    system: machine-inspection-ui
+    gdd: design/gdd/machine-inspection-ui.md
+    requirement: "Overview bottleneck = argmax loss(m, reason) over 60 s"
+    adrs: [ADR-0006]
+    created: 2026-09-20
+    revised: ""
+    status: active
+
+  # ── flow-blocker ──
+  - id: TR-blk-001
+    system: flow-blocker
+    gdd: design/gdd/flow-blocker.md
+    requirement: "Disables one IngressEdge per installed side without neighbor rediscovery; not a filter; effective next tick"
+    adrs: [ADR-0004, ADR-0001]
+    created: 2026-09-20
+    revised: ""
+    status: active
+  - id: TR-blk-002
+    system: flow-blocker
+    gdd: design/gdd/flow-blocker.md
+    requirement: "Removal that would join two working networks requires confirmation with upstream/downstream shown"
+    adrs: [ADR-0006]
+    created: 2026-09-20
+    revised: ""
+    status: active
+
+  # ── build-hud ──
+  - id: TR-hud-001
+    system: build-hud
+    gdd: design/gdd/build-hud.md
+    requirement: "Mode sidebar with hotkeys; previews with reasons; affected-network highlight; dialogs; economy strip; screen UI in UI Toolkit, world markers as sprites"
+    adrs: [ADR-0006, ADR-0007]
+    created: 2026-09-20
+    revised: ""
+    status: active
+
+  # ── multiblock ──
+  - id: TR-multi-001
+    system: multiblock
+    gdd: design/gdd/multiblock.md
+    requirement: "Controller/Slave with controllerCoord block attribute; Type I invalidation clears structure data without dropping parts and re-forms automatically; Type II single drop"
+    adrs: [ADR-0004]
+    created: 2026-09-20
+    revised: ""
+    status: active
+  - id: TR-multi-002
+    system: multiblock
+    gdd: design/gdd/multiblock.md
+    requirement: "Controller chunk unavailable -> Frozen, never treated as removed"
+    adrs: [ADR-0004, ADR-0005]
+    created: 2026-09-20
+    revised: ""
+    status: active
+
+  # ── tutorial-task ──
+  - id: TR-task-001
+    system: tutorial-task
+    gdd: design/gdd/tutorial-task.md
+    requirement: "Tasks judged by metric predicates over windows; rewards knowledge/tools/opportunities; forbidden multipliers and repeatable income"
+    adrs: [ADR-0001, ADR-0003]
+    created: 2026-09-20
+    revised: ""
+    status: active
+
+  # ── tech-unlock ──
+  - id: TR-unlk-001
+    system: tech-unlock
+    gdd: design/gdd/tech-unlock.md
+    requirement: "No research system; data nodes with any-of condition groups; depth tag required; non-task path required; latched per save"
+    adrs: [ADR-0003, ADR-0005]
+    created: 2026-09-20
+    revised: ""
+    status: active
+
+  # ── blueprint ──
+  - id: TR-bp-001
+    system: blueprint
+    gdd: design/gdd/blueprint.md
+    requirement: "Capture/stamp with rotation transforming orientation, ports, belt directions, blocker sides, anchors; material policies; build orders respecting Controller/infrastructure prerequisites"
+    adrs: [ADR-0004]
+    created: 2026-09-20
+    revised: ""
+    status: active
+
+  # ── group-processing-devices ──
+  - id: TR-gpd-001
+    system: group-processing-devices
+    gdd: design/gdd/group-processing-devices.md
+    requirement: "Splitter (RoundRobin/Divide/Ratio), Combiner (same-ItemId merge, port order), Batcher (exact batchSize) as the only regrouping path"
+    adrs: [ADR-0001, ADR-0004]
+    created: 2026-09-20
+    revised: ""
+    status: active
+
+  # ── glass-pipe ──
+  - id: TR-pipe-001
+    system: glass-pipe
+    gdd: design/gdd/glass-pipe.md
+    requirement: "Component-list content schema with phases, T, P, volumes; never encodes single-phase-per-cell; saves persist components"
+    adrs: [ADR-0004, ADR-0005]
+    created: 2026-09-20
+    revised: ""
+    status: active
+  - id: TR-pipe-002
+    system: glass-pipe
+    gdd: design/gdd/glass-pipe.md
+    requirement: "Visual: full-mask liquid and gas layers, equal-area stable-ordered component regions, alpha by amount, shader-driven; visuals never decide physics"
+    adrs: [ADR-0007]
+    created: 2026-09-20
+    revised: ""
+    status: active
+
+  # ── offline-progression ──
+  - id: TR-off-001
+    system: offline-progression
+    gdd: design/gdd/offline-progression.md
+    requirement: "Capped offline time advanced with the same engine/constraints via approved methods; equivalence within 1 batch/machine; fresh entropy; report produced"
+    adrs: [ADR-0001, ADR-0002, ADR-0005, ADR-0008]
+    created: 2026-09-20
+    revised: ""
+    status: active
+
+  # ── market-server (deferred) ──
+  - id: TR-msrv-001
+    system: market-server
+    gdd: design/gdd/market-server.md
+    requirement: "Interface-level: idempotent export/receipt, reserve-before-buy, rebind only via credential"
+    adrs: [ADR-0008]
+    created: 2026-09-20
+    revised: ""
+    status: active

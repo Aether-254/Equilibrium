@@ -1,0 +1,21 @@
+info:
+  name: List Instruments
+  type: http
+  seq: 1
+  tags: [market-data]
+http:
+  method: GET
+  url: "{{baseUrl}}/v1/realms/{{realmId}}/instruments?limit=100"
+  params:
+    - name: realmId
+      value: "{{realmId}}"
+      type: path
+    - name: limit
+      value: "100"
+      type: query
+  auth: inherit
+settings:
+  encodeUrl: true
+  timeout: 10000
+docs: |-
+  Lists tradable Fungibility Keys in the selected Realm.

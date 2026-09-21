@@ -1,0 +1,36 @@
+info:
+  name: Submit Addon Manifest
+  type: http
+  seq: 2
+  tags: [addons]
+http:
+  method: POST
+  url: "{{baseUrl}}/v1/addons/manifests"
+  auth: inherit
+  headers:
+    - name: Content-Type
+      value: application/json
+    - name: Idempotency-Key
+      value: addon-submit-example-0001
+  body:
+    type: json
+    data: |-
+      {
+        "namespace": "farmer_addon",
+        "version": "1.0.0",
+        "fingerprint": "sha256:farmer-addon-example",
+        "declaredImpact": "ADDITIVE",
+        "dependencies": [
+          { "namespace": "equilibrium", "versionRange": ">=0.1.0 <1.0.0" }
+        ],
+        "modifications": [],
+        "items": [],
+        "tagOperations": [],
+        "recipeRegistryFingerprint": "sha256:farmer-recipes-example",
+        "requestedRealmPolicy": "SHARE_IF_COMPATIBLE"
+      }
+settings:
+  encodeUrl: true
+  timeout: 20000
+docs: |-
+  Submits an already validated manifest for administrator review.

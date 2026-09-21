@@ -1,0 +1,39 @@
+info:
+  name: Create Limit Buy
+  type: http
+  seq: 1
+  tags: [orders, transaction]
+http:
+  method: POST
+  url: "{{baseUrl}}/v1/orders"
+  auth: inherit
+  headers:
+    - name: Content-Type
+      value: application/json
+    - name: Idempotency-Key
+      value: order-limit-buy-example-0001
+  body:
+    type: json
+    data: |-
+      {
+        "realmId": "{{realmId}}",
+        "instrumentId": "{{instrumentId}}",
+        "side": "BUY",
+        "type": "LIMIT",
+        "quantity": "100",
+        "limitPrice": {
+          "currencyId": "equilibrium:credit",
+          "amount": "12.5000"
+        },
+        "timeInForce": "GTC",
+        "expiresAt": null,
+        "warehouseReservationId": "local-capacity-reservation-0001",
+        "exportId": null,
+        "clientOrderId": "client-order-0001"
+      }
+settings:
+  encodeUrl: true
+  timeout: 20000
+docs: |-
+  The complete quantity must already have an exclusive local warehouse capacity
+  reservation. The server rejects orders without the reservation reference.

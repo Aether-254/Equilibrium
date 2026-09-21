@@ -112,3 +112,29 @@ InitTestScene*.unity*
 
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
+
+# Game Studio framework distribution
+#
+# The vendored framework lives under codex/ and stays local to the workspace.
+# Only the root launchers, .agents/ (skills) and .codex/ (project state) remain
+# at the top level. Project artifacts created through skills (design/,
+# production/, docs/) are intentionally not ignored.
+/codex/
+/.agents/
+/.codex/
+/AGENTS.md
+/codex-game-studio
+/codex-game-studio.cmd
+/codex-game-studio.ps1
+
+# Game Studio framework distribution (CCGS). Vendored checkout under claude/;
+# .claude/ (skills, agents, hooks, settings) and CLAUDE.md are the harness surface.
+/claude/
+/.claude/
+/CLAUDE.md
+CLAUDE.local.md
+production/session-logs/
+docs/consistency-failures.md
+
+Packages/manifest.json
+Packages/packages-lock.json

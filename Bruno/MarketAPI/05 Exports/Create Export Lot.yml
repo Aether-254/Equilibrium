@@ -1,0 +1,36 @@
+info:
+  name: Create Export Lot
+  type: http
+  seq: 1
+  tags: [exports, transaction]
+http:
+  method: POST
+  url: "{{baseUrl}}/v1/exports"
+  auth: inherit
+  headers:
+    - name: Content-Type
+      value: application/json
+    - name: Idempotency-Key
+      value: export-example-0001
+  body:
+    type: json
+    data: |-
+      {
+        "saveId": "save-example-001",
+        "realmId": "{{realmId}}",
+        "registrySnapshotDigest": "sha256:replace-with-current-snapshot",
+        "localEscrowTransactionId": "local-tx-export-0001",
+        "lines": [
+          {
+            "instrumentId": "{{instrumentId}}",
+            "quantity": "100",
+            "normalizedStateDigest": "sha256:normalized-default-state"
+          }
+        ]
+      }
+settings:
+  encodeUrl: true
+  timeout: 20000
+docs: |-
+  Call only after the local unified transaction has normalized and escrowed the
+  items. Retry the identical body with the same Idempotency-Key after timeout.

@@ -1,0 +1,11 @@
+name: Example
+variables:
+  - name: baseUrl
+    value: https://market.example.invalid
+  - name: accessToken
+    value: ""
+    secret: true
+  - name: realmId
+    value: vanilla-1
+  - name: instrumentId
+    value: equilibrium-wood-default

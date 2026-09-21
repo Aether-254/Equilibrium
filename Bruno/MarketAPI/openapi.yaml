@@ -1,0 +1,1844 @@
+openapi: 3.1.0
+info:
+  title: Equilibrium Market API
+  version: 0.1.0-design
+  description: |
+    Design-stage HTTP contract for global Market Servers, compatibility Realms,
+    effective Item/Tag registries, Addon manifests, trading, settlements, and
+    server-authorized save migration.
+servers:
+  - url: https://market.example.invalid
+    description: Non-routable example server
+tags:
+  - name: Discovery
+  - name: Account
+  - name: Compatibility
+  - name: Registry
+  - name: Addons
+  - name: MarketData
+  - name: Exports
+  - name: Orders
+  - name: Settlements
+  - name: Contracts
+  - name: Migration
+security:
+  - oauth2: []
+paths:
+  /.well-known/equilibrium-market:
+    get:
+      tags: [Discovery]
+      operationId: discoverMarketServer
+      security: []
+      responses:
+        "200":
+          description: Stable server identity and API locations.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiscoveryDocument"
+  /v1/server:
+    get:
+      tags: [Discovery]
+      operationId: getServer
+      security: []
+      responses:
+        "200":
+          description: Server metadata.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServerInfo"
+  /v1/capabilities:
+    get:
+      tags: [Discovery]
+      operationId: getCapabilities
+      security: []
+      responses:
+        "200":
+          description: Supported features and server limits.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Capabilities"
+  /v1/time:
+    get:
+      tags: [Discovery]
+      operationId: getServerTime
+      security: []
+      responses:
+        "200":
+          description: Server-authoritative time.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [serverTime, uncertaintyMilliseconds]
+                properties:
+                  serverTime:
+                    type: string
+                    format: date-time
+                  uncertaintyMilliseconds:
+                    type: integer
+                    minimum: 0
+  /v1/auth/config:
+    get:
+      tags: [Discovery]
+      operationId: getAuthConfig
+      security: []
+      responses:
+        "200":
+          description: Server-advertised OAuth/OIDC configuration.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthConfig"
+  /v1/me:
+    get:
+      tags: [Account]
+      operationId: getCurrentAccount
+      security:
+        - oauth2: [account:read]
+      responses:
+        "200":
+          description: Current account and save binding.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+        default:
+          $ref: "#/components/responses/Problem"
+  /v1/me/balances:
+    get:
+      tags: [Account]
+      operationId: listBalances
+      security:
+        - oauth2: [balances:read]
+      responses:
+        "200":
+          description: Server-authoritative balances.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [balances, asOf]
+                properties:
+                  balances:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Money"
+                  asOf:
+                    type: string
+                    format: date-time
+        default:
+          $ref: "#/components/responses/Problem"
+  /v1/me/limits:
+    get:
+      tags: [Account]
+      operationId: getAccountLimits
+      security:
+        - oauth2: [account:read]
+      responses:
+        "200":
+          description: Effective account and Realm limits.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: "#/components/responses/Problem"
+  /v1/compatibility/evaluations:
+    post:
+      tags: [Compatibility]
+      operationId: evaluateCompatibility
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompatibilityProfile"
+      responses:
+        "200":
+          description: Compatibility decision and selected Realm.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompatibilityDecision"
+        default:
+          $ref: "#/components/responses/Problem"
+  /v1/realms:
+    get:
+      tags: [Compatibility]
+      operationId: listRealms
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          description: Visible Realms.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RealmPage"
+  /v1/realms/{realmId}:
+    get:
+      tags: [Compatibility]
+      operationId: getRealm
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/RealmId"
+      responses:
+        "200":
+          description: Realm details.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Realm"
+        default:
+          $ref: "#/components/responses/Problem"
+  /v1/registry/snapshots/current:
+    get:
+      tags: [Registry]
+      operationId: getCurrentRegistrySnapshot
+      parameters:
+        - $ref: "#/components/parameters/RealmIdQuery"
+      responses:
+        "200":
+          description: Immutable effective registry snapshot metadata.
+          headers:
+            ETag:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RegistrySnapshot"
+        default:
+          $ref: "#/components/responses/Problem"
+  /v1/registry/items:resolve:
+    post:
+      tags: [Registry]
+      operationId: resolveItems
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResolveItemsRequest"
+      responses:
+        "200":
+          description: Resolved effective item definitions.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [snapshotDigest, items]
+                properties:
+                  snapshotDigest:
+                    type: string
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ItemDefinition"
+        default:
+          $ref: "#/components/responses/Problem"
+  /v1/registry/tags:resolve:
+    post:
+      tags: [Registry]
+      operationId: resolveTags
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResolveTagsRequest"
+      responses:
+        "200":
+          description: Resolved effective tag definitions and provenance.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [snapshotDigest, tags]
+                properties:
+                  snapshotDigest:
+                    type: string
+                  tags:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/TagDefinition"
+        default:
+          $ref: "#/components/responses/Problem"
+  /v1/registry/changes:
+    get:
+      tags: [Registry]
+      operationId: listRegistryChanges
+      parameters:
+        - name: fromDigest
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: toDigest
+          in: query
+          required: true
+          schema:
+            type: string
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          description: Cursor-paged compatible registry changes.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericPage"
+        default:
+          $ref: "#/components/responses/Problem"
+  /v1/addons/manifests:validate:
+    post:
+      tags: [Addons]
+      operationId: validateAddonManifest
+      security:
+        - oauth2: [addons:submit]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddonManifest"
+      responses:
+        "200":
+          description: Validation result without submission.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ManifestValidation"
+        default:
+          $ref: "#/components/responses/Problem"
+  /v1/addons/manifests:
+    post:
+      tags: [Addons]
+      operationId: submitAddonManifest
+      security:
+        - oauth2: [addons:submit]
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddonManifest"
+      responses:
+        "202":
+          description: Manifest accepted for review.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ManifestSubmission"
+        default:
+          $ref: "#/components/responses/Problem"
+  /v1/addons/manifests/{submissionId}:
+    get:
+      tags: [Addons]
+      operationId: getAddonManifestSubmission
+      security:
+        - oauth2: [addons:read]
+      parameters:
+        - name: submissionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Manifest validation and review status.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ManifestSubmission"
+        default:
+          $ref: "#/components/responses/Problem"
+  /v1/admin/addons/manifests/{submissionId}:review:
+    post:
+      tags: [Addons]
+      operationId: reviewAddonManifest
+      security:
+        - oauth2: [admin:addons]
+      parameters:
+        - name: submissionId
+          in: path
+          required: true
+          schema:
+            type: string
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [decision]
+              properties:
+                decision:
+                  enum: [APPROVE, ISOLATE, RESTRICT, REJECT]
+                realmId:
+                  type: [string, "null"]
+                restrictions:
+                  type: array
+                  items:
+                    type: string
+                reason:
+                  type: string
+      responses:
+        "200":
+          description: Review decision recorded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ManifestSubmission"
+        default:
+          $ref: "#/components/responses/Problem"
+  /v1/realms/{realmId}/instruments:
+    get:
+      tags: [MarketData]
+      operationId: listInstruments
+      parameters:
+        - $ref: "#/components/parameters/RealmId"
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+        - name: itemId
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Tradable instruments in the Realm.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InstrumentPage"
+        default:
+          $ref: "#/components/responses/Problem"
+  /v1/realms/{realmId}/instruments/{instrumentId}:
+    get:
+      tags: [MarketData]
+      operationId: getInstrument
+      parameters:
+        - $ref: "#/components/parameters/RealmId"
+        - $ref: "#/components/parameters/InstrumentId"
+      responses:
+        "200":
+          description: Instrument metadata.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Instrument"
+        default:
+          $ref: "#/components/responses/Problem"
+  /v1/realms/{realmId}/instruments/{instrumentId}/order-book:
+    get:
+      tags: [MarketData]
+      operationId: getOrderBook
+      parameters:
+        - $ref: "#/components/parameters/RealmId"
+        - $ref: "#/components/parameters/InstrumentId"
+        - name: depth
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 500
+            default: 50
+      responses:
+        "200":
+          description: Aggregated local-Realm order book.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderBook"
+        default:
+          $ref: "#/components/responses/Problem"
+  /v1/realms/{realmId}/instruments/{instrumentId}/trades:
+    get:
+      tags: [MarketData]
+      operationId: listTrades
+      parameters:
+        - $ref: "#/components/parameters/RealmId"
+        - $ref: "#/components/parameters/InstrumentId"
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          description: Recent trades.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TradePage"
+        default:
+          $ref: "#/components/responses/Problem"
+  /v1/realms/{realmId}/instruments/{instrumentId}/candles:
+    get:
+      tags: [MarketData]
+      operationId: listCandles
+      parameters:
+        - $ref: "#/components/parameters/RealmId"
+        - $ref: "#/components/parameters/InstrumentId"
+        - name: interval
+          in: query
+          required: true
+          schema:
+            enum: [1m, 5m, 15m, 1h, 1d]
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: OHLCV buckets.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Candle"
+        default:
+          $ref: "#/components/responses/Problem"
+  /v1/realms/{realmId}/observations:
+    get:
+      tags: [MarketData]
+      operationId: listCrossRealmObservations
+      parameters:
+        - $ref: "#/components/parameters/RealmId"
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          description: Delayed non-tradable aggregate observations.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericPage"
+        default:
+          $ref: "#/components/responses/Problem"
+  /v1/exports:
+    get:
+      tags: [Exports]
+      operationId: listExports
+      security:
+        - oauth2: [exports:read]
+      parameters:
+        - name: state
+          in: query
+          schema:
+            type: string
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          description: Caller export lots.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExportPage"
+        default:
+          $ref: "#/components/responses/Problem"
+    post:
+      tags: [Exports]
+      operationId: createExport
+      security:
+        - oauth2: [exports:write]
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateExportRequest"
+      responses:
+        "201":
+          description: Export accepted.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExportLot"
+        default:
+          $ref: "#/components/responses/Problem"
+  /v1/exports/{exportId}:
+    get:
+      tags: [Exports]
+      operationId: getExport
+      security:
+        - oauth2: [exports:read]
+      parameters:
+        - $ref: "#/components/parameters/ExportId"
+      responses:
+        "200":
+          description: Authoritative export state.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExportLot"
+        default:
+          $ref: "#/components/responses/Problem"
+  /v1/exports/{exportId}:release:
+    post:
+      tags: [Exports]
+      operationId: releaseExport
+      security:
+        - oauth2: [exports:write]
+      parameters:
+        - $ref: "#/components/parameters/ExportId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "200":
+          description: Unused or rejected quantity released for local recovery.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExportLot"
+        default:
+          $ref: "#/components/responses/Problem"
+  /v1/orders:
+    get:
+      tags: [Orders]
+      operationId: listOrders
+      security:
+        - oauth2: [orders:read]
+      parameters:
+        - name: state
+          in: query
+          schema:
+            type: string
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          description: Caller orders.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderPage"
+        default:
+          $ref: "#/components/responses/Problem"
+    post:
+      tags: [Orders]
+      operationId: createOrder
+      security:
+        - oauth2: [orders:write]
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOrderRequest"
+      responses:
+        "201":
+          description: Order accepted.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        default:
+          $ref: "#/components/responses/Problem"
+  /v1/orders/{orderId}:
+    get:
+      tags: [Orders]
+      operationId: getOrder
+      security:
+        - oauth2: [orders:read]
+      parameters:
+        - $ref: "#/components/parameters/OrderId"
+      responses:
+        "200":
+          description: Authoritative order state.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        default:
+          $ref: "#/components/responses/Problem"
+  /v1/orders/{orderId}:cancel:
+    post:
+      tags: [Orders]
+      operationId: cancelOrder
+      security:
+        - oauth2: [orders:write]
+      parameters:
+        - $ref: "#/components/parameters/OrderId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "200":
+          description: Cancellation result; prior committed fills remain.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        default:
+          $ref: "#/components/responses/Problem"
+  /v1/settlements:
+    get:
+      tags: [Settlements]
+      operationId: listSettlements
+      security:
+        - oauth2: [settlements:read]
+      parameters:
+        - name: state
+          in: query
+          schema:
+            enum: [PENDING, ACKNOWLEDGED, ALL]
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          description: Pending or historical settlements.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SettlementPage"
+        default:
+          $ref: "#/components/responses/Problem"
+  /v1/settlements/{settlementId}:
+    get:
+      tags: [Settlements]
+      operationId: getSettlement
+      security:
+        - oauth2: [settlements:read]
+      parameters:
+        - $ref: "#/components/parameters/SettlementId"
+      responses:
+        "200":
+          description: Signed settlement details.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Settlement"
+        default:
+          $ref: "#/components/responses/Problem"
+  /v1/settlements/{settlementId}:acknowledge:
+    post:
+      tags: [Settlements]
+      operationId: acknowledgeSettlement
+      security:
+        - oauth2: [settlements:write]
+      parameters:
+        - $ref: "#/components/parameters/SettlementId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AcknowledgeSettlementRequest"
+      responses:
+        "200":
+          description: Settlement application acknowledged exactly once.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Settlement"
+        default:
+          $ref: "#/components/responses/Problem"
+  /v1/contracts:
+    get:
+      tags: [Contracts]
+      operationId: listContracts
+      security:
+        - oauth2: [contracts:read]
+      parameters:
+        - $ref: "#/components/parameters/RealmIdQuery"
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          description: Active public industrial contracts.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericPage"
+        default:
+          $ref: "#/components/responses/Problem"
+  /v1/contracts/{contractId}:
+    get:
+      tags: [Contracts]
+      operationId: getContract
+      security:
+        - oauth2: [contracts:read]
+      parameters:
+        - name: contractId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Contract details.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: "#/components/responses/Problem"
+  /v1/contracts/{contractId}/deliveries:
+    post:
+      tags: [Contracts]
+      operationId: deliverContract
+      security:
+        - oauth2: [contracts:write]
+      parameters:
+        - name: contractId
+          in: path
+          required: true
+          schema:
+            type: string
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [exportId, quantity]
+              properties:
+                exportId:
+                  type: string
+                quantity:
+                  $ref: "#/components/schemas/Quantity"
+      responses:
+        "201":
+          description: Delivery accepted.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: "#/components/responses/Problem"
+  /v1/migrations:
+    post:
+      tags: [Migration]
+      operationId: requestMigration
+      security:
+        - oauth2: [migration:request]
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMigrationRequest"
+      responses:
+        "202":
+          description: Migration preparation started.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Migration"
+        default:
+          $ref: "#/components/responses/Problem"
+  /v1/migrations/{migrationId}:
+    get:
+      tags: [Migration]
+      operationId: getMigration
+      security:
+        - oauth2: [migration:read]
+      parameters:
+        - $ref: "#/components/parameters/MigrationId"
+      responses:
+        "200":
+          description: Migration state and credential when ready.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Migration"
+        default:
+          $ref: "#/components/responses/Problem"
+  /v1/migrations/{migrationId}:redeem:
+    post:
+      tags: [Migration]
+      operationId: redeemMigration
+      security:
+        - oauth2: [migration:redeem]
+      parameters:
+        - $ref: "#/components/parameters/MigrationId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [destinationType, destinationId, credentialDigest]
+              properties:
+                destinationType:
+                  enum: [REMOTE_SERVER, NPC]
+                destinationId:
+                  type: string
+                credentialDigest:
+                  type: string
+      responses:
+        "200":
+          description: Source nonce atomically redeemed.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [migrationId, redeemedAt, redemptionReceipt]
+                properties:
+                  migrationId:
+                    type: string
+                  redeemedAt:
+                    type: string
+                    format: date-time
+                  redemptionReceipt:
+                    type: string
+        default:
+          $ref: "#/components/responses/Problem"
+  /v1/migration-imports:
+    post:
+      tags: [Migration]
+      operationId: importMigration
+      security:
+        - oauth2: [migration:import]
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ImportMigrationRequest"
+      responses:
+        "201":
+          description: Credential accepted and new binding established.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [serverId, realmId, accountId, importedAt]
+                properties:
+                  serverId:
+                    type: string
+                  realmId:
+                    type: string
+                  accountId:
+                    type: string
+                  importedAt:
+                    type: string
+                    format: date-time
+        default:
+          $ref: "#/components/responses/Problem"
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      description: Actual issuer and endpoints are discovered from `/v1/auth/config`.
+      flows:
+        authorizationCode:
+          authorizationUrl: https://market.example.invalid/oauth/authorize
+          tokenUrl: https://market.example.invalid/oauth/token
+          scopes:
+            account:read: Read account and binding state.
+            balances:read: Read currency balances.
+            addons:submit: Validate and submit Addon manifests.
+            addons:read: Read Addon submissions.
+            admin:addons: Review Addon submissions.
+            exports:read: Read export lots.
+            exports:write: Create and release export lots.
+            orders:read: Read own orders.
+            orders:write: Create and cancel orders.
+            settlements:read: Read settlements.
+            settlements:write: Acknowledge settlement application.
+            contracts:read: Read industrial contracts.
+            contracts:write: Deliver to industrial contracts.
+            migration:request: Request migration from the bound server.
+            migration:read: Read own migration state.
+            migration:redeem: Redeem a migration at the source.
+            migration:import: Import a migration at a destination.
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema:
+        type: string
+        minLength: 16
+        maxLength: 128
+    Limit:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 500
+        default: 100
+    Cursor:
+      name: cursor
+      in: query
+      schema:
+        type: string
+    RealmId:
+      name: realmId
+      in: path
+      required: true
+      schema:
+        type: string
+    RealmIdQuery:
+      name: realmId
+      in: query
+      required: true
+      schema:
+        type: string
+    InstrumentId:
+      name: instrumentId
+      in: path
+      required: true
+      schema:
+        type: string
+    OrderId:
+      name: orderId
+      in: path
+      required: true
+      schema:
+        type: string
+    ExportId:
+      name: exportId
+      in: path
+      required: true
+      schema:
+        type: string
+    SettlementId:
+      name: settlementId
+      in: path
+      required: true
+      schema:
+        type: string
+    MigrationId:
+      name: migrationId
+      in: path
+      required: true
+      schema:
+        type: string
+  responses:
+    Problem:
+      description: Problem Details error.
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+  schemas:
+    Quantity:
+      type: string
+      pattern: "^(0|[1-9][0-9]*)$"
+      examples: ["3000"]
+    DecimalAmount:
+      type: string
+      pattern: "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$"
+      examples: ["12.5000"]
+    Money:
+      type: object
+      required: [currencyId, amount]
+      properties:
+        currencyId:
+          type: string
+          examples: [equilibrium:credit]
+        amount:
+          $ref: "#/components/schemas/DecimalAmount"
+    PageMeta:
+      type: object
+      properties:
+        nextCursor:
+          type: [string, "null"]
+    GenericPage:
+      allOf:
+        - $ref: "#/components/schemas/PageMeta"
+        - type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items: {}
+    Problem:
+      type: object
+      required: [type, title, status, code, traceId, retryable]
+      properties:
+        type:
+          type: string
+          format: uri
+        title:
+          type: string
+        status:
+          type: integer
+          minimum: 400
+          maximum: 599
+        code:
+          type: string
+        detail:
+          type: string
+        instance:
+          type: string
+        traceId:
+          type: string
+        retryable:
+          type: boolean
+        details:
+          type: object
+          additionalProperties: true
+    DiscoveryDocument:
+      type: object
+      required: [serverId, apiBaseUrl, eventsUrl, protocolVersions, jwksUri]
+      properties:
+        serverId:
+          type: string
+        apiBaseUrl:
+          type: string
+          format: uri
+        eventsUrl:
+          type: string
+          format: uri
+        protocolVersions:
+          type: array
+          items:
+            type: integer
+        jwksUri:
+          type: string
+          format: uri
+        authConfigUrl:
+          type: string
+          format: uri
+    ServerInfo:
+      type: object
+      required: [serverId, displayName, trustMode, serverTime]
+      properties:
+        serverId:
+          type: string
+        displayName:
+          type: string
+        description:
+          type: string
+        trustMode:
+          enum: [OPEN_COMMUNITY, VERIFIED]
+        serverTime:
+          type: string
+          format: date-time
+        termsUrl:
+          type: [string, "null"]
+          format: uri
+        privacyUrl:
+          type: [string, "null"]
+          format: uri
+    Capabilities:
+      type: object
+      required: [protocolVersions, features, idempotencyRetentionSeconds, limits]
+      properties:
+        protocolVersions:
+          type: array
+          items:
+            type: integer
+        features:
+          type: array
+          items:
+            type: string
+        idempotencyRetentionSeconds:
+          type: integer
+          minimum: 1
+        limits:
+          type: object
+          additionalProperties: true
+    AuthConfig:
+      type: object
+      required: [issuer, authorizationEndpoint, tokenEndpoint, scopes]
+      properties:
+        issuer:
+          type: string
+          format: uri
+        authorizationEndpoint:
+          type: string
+          format: uri
+        tokenEndpoint:
+          type: string
+          format: uri
+        deviceAuthorizationEndpoint:
+          type: [string, "null"]
+          format: uri
+        clientId:
+          type: [string, "null"]
+        redirectMethods:
+          type: array
+          items:
+            enum: [LOOPBACK, CUSTOM_SCHEME, DEVICE_CODE]
+        scopes:
+          type: array
+          items:
+            type: string
+    Account:
+      type: object
+      required: [accountId, serverId, realmId, saveId, compatibilityStatus]
+      properties:
+        accountId:
+          type: string
+        serverId:
+          type: string
+        realmId:
+          type: string
+        saveId:
+          type: string
+        compatibilityStatus:
+          enum: [COMPATIBLE, RESTRICTED, LEGACY_READ_ONLY, REJECTED]
+        trustTier:
+          type: string
+    CompatibilityProfile:
+      type: object
+      required: [gameVersion, marketProtocolVersion, saveId, addons]
+      properties:
+        gameVersion:
+          type: string
+        marketProtocolVersion:
+          type: integer
+          minimum: 1
+        saveId:
+          type: string
+        itemRegistryFingerprint:
+          type: string
+        recipeRegistryFingerprint:
+          type: string
+        addons:
+          type: array
+          items:
+            type: object
+            required: [namespace, version, fingerprint]
+            properties:
+              namespace:
+                type: string
+              version:
+                type: string
+              fingerprint:
+                type: string
+              declaredImpact:
+                enum: [COSMETIC, ADDITIVE, BALANCE_AFFECTING, OVERHAUL, UNKNOWN]
+    CompatibilityDecision:
+      type: object
+      required: [decision, registrySnapshotDigest, restrictions]
+      properties:
+        decision:
+          enum: [ALLOW, ISOLATE, ALLOW_RESTRICTED, REJECT]
+        realmId:
+          type: [string, "null"]
+        registrySnapshotDigest:
+          type: string
+        restrictions:
+          type: array
+          items:
+            type: string
+        reasons:
+          type: array
+          items:
+            type: string
+    Realm:
+      type: object
+      required: [realmId, displayName, state, registrySnapshotDigest, tradingAllowed]
+      properties:
+        realmId:
+          type: string
+        displayName:
+          type: string
+        state:
+          enum: [ACTIVE, LEGACY, READ_ONLY, CLOSED]
+        registrySnapshotDigest:
+          type: string
+        tradingAllowed:
+          type: boolean
+        observationDelaySeconds:
+          type: integer
+          minimum: 0
+        compatibilityConstraints:
+          type: object
+          additionalProperties: true
+    RealmPage:
+      allOf:
+        - $ref: "#/components/schemas/PageMeta"
+        - type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/Realm"
+    RegistrySnapshot:
+      type: object
+      required: [realmId, digest, publishedAt, itemCount, tagCount, addonSet]
+      properties:
+        realmId:
+          type: string
+        digest:
+          type: string
+        publishedAt:
+          type: string
+          format: date-time
+        usableForNewTransactions:
+          type: boolean
+        itemCount:
+          type: integer
+          minimum: 0
+        tagCount:
+          type: integer
+          minimum: 0
+        addonSet:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+    ResolveItemsRequest:
+      type: object
+      required: [snapshotDigest, itemIds]
+      properties:
+        snapshotDigest:
+          type: string
+        itemIds:
+          type: array
+          minItems: 1
+          maxItems: 500
+          uniqueItems: true
+          items:
+            type: string
+            pattern: "^[a-z0-9_.-]+:[a-z0-9_./-]+$"
+    ItemDefinition:
+      type: object
+      required: [itemId, maxStack, marketTradable, sourceNamespace, definitionDigest]
+      properties:
+        itemId:
+          type: string
+        maxStack:
+          $ref: "#/components/schemas/Quantity"
+        marketTradable:
+          type: boolean
+        fungibilityFields:
+          type: array
+          items:
+            type: string
+        effectiveTags:
+          type: array
+          items:
+            type: string
+        sourceNamespace:
+          type: string
+        definitionDigest:
+          type: string
+        data:
+          type: object
+          additionalProperties: true
+    ResolveTagsRequest:
+      type: object
+      required: [snapshotDigest, tagIds]
+      properties:
+        snapshotDigest:
+          type: string
+        tagIds:
+          type: array
+          minItems: 1
+          maxItems: 500
+          uniqueItems: true
+          items:
+            type: string
+            pattern: "^#[a-z0-9_.-]+:[a-z0-9_./-]+$"
+        includeMembers:
+          type: boolean
+          default: true
+        includeProvenance:
+          type: boolean
+          default: true
+    TagDefinition:
+      type: object
+      required: [tagId, parentTagIds, effectiveMembers, provenance]
+      properties:
+        tagId:
+          type: string
+        parentTagIds:
+          type: array
+          items:
+            type: string
+        effectiveMembers:
+          type: array
+          items:
+            type: string
+        provenance:
+          type: array
+          items:
+            type: object
+            required: [namespace, operation, itemId]
+            properties:
+              namespace:
+                type: string
+              operation:
+                enum: [ADD, REMOVE]
+              itemId:
+                type: string
+    AddonManifest:
+      type: object
+      required:
+        - namespace
+        - version
+        - fingerprint
+        - declaredImpact
+        - dependencies
+        - modifications
+        - items
+        - tagOperations
+      properties:
+        namespace:
+          type: string
+          pattern: "^[a-z0-9_.-]+$"
+        version:
+          type: string
+        fingerprint:
+          type: string
+        declaredImpact:
+          enum: [COSMETIC, ADDITIVE, BALANCE_AFFECTING, OVERHAUL, UNKNOWN]
+        dependencies:
+          type: array
+          items:
+            $ref: "#/components/schemas/NamespaceConstraint"
+        modifications:
+          type: array
+          items:
+            $ref: "#/components/schemas/NamespaceConstraint"
+        items:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        tagOperations:
+          type: array
+          items:
+            type: object
+            required: [operation, tagId, itemId]
+            properties:
+              operation:
+                enum: [ADD, REMOVE]
+              tagId:
+                type: string
+              itemId:
+                type: string
+        recipeRegistryFingerprint:
+          type: string
+        requestedRealmPolicy:
+          enum: [SHARE_IF_COMPATIBLE, EXCLUSIVE, REJECT_IF_NOT_SHARED]
+    NamespaceConstraint:
+      type: object
+      required: [namespace, versionRange]
+      properties:
+        namespace:
+          type: string
+        versionRange:
+          type: string
+    ManifestValidation:
+      type: object
+      required: [valid, errors, warnings, calculatedImpact]
+      properties:
+        valid:
+          type: boolean
+        errors:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        warnings:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        calculatedImpact:
+          enum: [COSMETIC, ADDITIVE, BALANCE_AFFECTING, OVERHAUL, UNKNOWN]
+        calculatedFingerprint:
+          type: string
+    ManifestSubmission:
+      type: object
+      required: [submissionId, namespace, version, state, submittedAt]
+      properties:
+        submissionId:
+          type: string
+        namespace:
+          type: string
+        version:
+          type: string
+        state:
+          enum: [SUBMITTED, VALIDATING, NEEDS_CHANGES, APPROVED, ISOLATED, RESTRICTED, REJECTED]
+        submittedAt:
+          type: string
+          format: date-time
+        validation:
+          $ref: "#/components/schemas/ManifestValidation"
+        assignedRealmId:
+          type: [string, "null"]
+        restrictions:
+          type: array
+          items:
+            type: string
+    FungibilityKey:
+      type: object
+      required: [itemId, fields]
+      properties:
+        itemId:
+          type: string
+        fields:
+          type: object
+          additionalProperties:
+            type: [string, number, integer, boolean]
+    Instrument:
+      type: object
+      required: [instrumentId, realmId, fungibilityKey, state, settlementCurrencyId]
+      properties:
+        instrumentId:
+          type: string
+        realmId:
+          type: string
+        fungibilityKey:
+          $ref: "#/components/schemas/FungibilityKey"
+        state:
+          enum: [ACTIVE, HALTED, READ_ONLY, CLOSED]
+        settlementCurrencyId:
+          type: string
+        liquidityMode:
+          enum: [FINITE, INFINITE, DISABLED]
+        quantityStep:
+          $ref: "#/components/schemas/Quantity"
+        priceTick:
+          $ref: "#/components/schemas/DecimalAmount"
+    InstrumentPage:
+      allOf:
+        - $ref: "#/components/schemas/PageMeta"
+        - type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/Instrument"
+    BookLevel:
+      type: object
+      required: [price, quantity, orderCount]
+      properties:
+        price:
+          $ref: "#/components/schemas/Money"
+        quantity:
+          $ref: "#/components/schemas/Quantity"
+        orderCount:
+          type: integer
+          minimum: 1
+    OrderBook:
+      type: object
+      required: [realmId, instrumentId, sequence, asOf, bids, asks]
+      properties:
+        realmId:
+          type: string
+        instrumentId:
+          type: string
+        sequence:
+          type: string
+        asOf:
+          type: string
+          format: date-time
+        bids:
+          type: array
+          items:
+            $ref: "#/components/schemas/BookLevel"
+        asks:
+          type: array
+          items:
+            $ref: "#/components/schemas/BookLevel"
+    Trade:
+      type: object
+      required: [tradeId, instrumentId, price, quantity, occurredAt]
+      properties:
+        tradeId:
+          type: string
+        instrumentId:
+          type: string
+        price:
+          $ref: "#/components/schemas/Money"
+        quantity:
+          $ref: "#/components/schemas/Quantity"
+        occurredAt:
+          type: string
+          format: date-time
+    TradePage:
+      allOf:
+        - $ref: "#/components/schemas/PageMeta"
+        - type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/Trade"
+    Candle:
+      type: object
+      required: [startedAt, open, high, low, close, volume]
+      properties:
+        startedAt:
+          type: string
+          format: date-time
+        open:
+          $ref: "#/components/schemas/DecimalAmount"
+        high:
+          $ref: "#/components/schemas/DecimalAmount"
+        low:
+          $ref: "#/components/schemas/DecimalAmount"
+        close:
+          $ref: "#/components/schemas/DecimalAmount"
+        volume:
+          $ref: "#/components/schemas/Quantity"
+    CreateExportRequest:
+      type: object
+      required: [saveId, realmId, registrySnapshotDigest, localEscrowTransactionId, lines]
+      properties:
+        saveId:
+          type: string
+        realmId:
+          type: string
+        registrySnapshotDigest:
+          type: string
+        localEscrowTransactionId:
+          type: string
+        lines:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            required: [instrumentId, quantity, normalizedStateDigest]
+            properties:
+              instrumentId:
+                type: string
+              quantity:
+                $ref: "#/components/schemas/Quantity"
+              normalizedStateDigest:
+                type: string
+    ExportLot:
+      type: object
+      required: [exportId, state, realmId, lines, createdAt]
+      properties:
+        exportId:
+          type: string
+        state:
+          enum: [ACCEPTED, PARTIALLY_CONSUMED, CONSUMED, RELEASED, REJECTED]
+        realmId:
+          type: string
+        lines:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        createdAt:
+          type: string
+          format: date-time
+    ExportPage:
+      allOf:
+        - $ref: "#/components/schemas/PageMeta"
+        - type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/ExportLot"
+    CreateOrderRequest:
+      type: object
+      required: [realmId, instrumentId, side, type, quantity, timeInForce]
+      properties:
+        realmId:
+          type: string
+        instrumentId:
+          type: string
+        side:
+          enum: [BUY, SELL]
+        type:
+          enum: [MARKET, LIMIT]
+        quantity:
+          $ref: "#/components/schemas/Quantity"
+        limitPrice:
+          oneOf:
+            - $ref: "#/components/schemas/Money"
+            - type: "null"
+        timeInForce:
+          enum: [GTC, IOC, FOK, GOOD_TIL_TIME]
+        expiresAt:
+          type: [string, "null"]
+          format: date-time
+        warehouseReservationId:
+          type: [string, "null"]
+          description: Required for BUY.
+        exportId:
+          type: [string, "null"]
+          description: Required for SELL.
+        clientOrderId:
+          type: string
+    Order:
+      type: object
+      required:
+        - orderId
+        - realmId
+        - instrumentId
+        - side
+        - type
+        - state
+        - quantity
+        - filledQuantity
+        - createdAt
+      properties:
+        orderId:
+          type: string
+        realmId:
+          type: string
+        instrumentId:
+          type: string
+        side:
+          enum: [BUY, SELL]
+        type:
+          enum: [MARKET, LIMIT]
+        state:
+          enum: [PENDING, OPEN, PARTIALLY_FILLED, FILLED, CANCELLED, REJECTED, EXPIRED]
+        quantity:
+          $ref: "#/components/schemas/Quantity"
+        filledQuantity:
+          $ref: "#/components/schemas/Quantity"
+        limitPrice:
+          oneOf:
+            - $ref: "#/components/schemas/Money"
+            - type: "null"
+        averageFillPrice:
+          oneOf:
+            - $ref: "#/components/schemas/Money"
+            - type: "null"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    OrderPage:
+      allOf:
+        - $ref: "#/components/schemas/PageMeta"
+        - type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/Order"
+    Settlement:
+      type: object
+      required: [settlementId, type, state, realmId, createdAt, payload, signature]
+      properties:
+        settlementId:
+          type: string
+        type:
+          enum: [ITEM_DELIVERY, CURRENCY_CREDIT, CURRENCY_DEBIT, EXPORT_RELEASE, CONTRACT_REWARD]
+        state:
+          enum: [PENDING, ACKNOWLEDGED, VOIDED]
+        realmId:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        payload:
+          type: object
+          additionalProperties: true
+        signature:
+          type: string
+        acknowledgedAt:
+          type: [string, "null"]
+          format: date-time
+    SettlementPage:
+      allOf:
+        - $ref: "#/components/schemas/PageMeta"
+        - type: object
+          required: [items]
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/Settlement"
+    AcknowledgeSettlementRequest:
+      type: object
+      required: [localTransactionId, localStateDigest, appliedAt]
+      properties:
+        localTransactionId:
+          type: string
+        localStateDigest:
+          type: string
+        appliedAt:
+          type: string
+          format: date-time
+    CreateMigrationRequest:
+      type: object
+      required: [saveId, destinationPolicy]
+      properties:
+        saveId:
+          type: string
+        destinationPolicy:
+          enum: [ANY_COMPATIBLE_SERVER, ALLOWED_SERVERS, RECOMMENDED_SERVERS, NPC]
+        requestedDestinationServerId:
+          type: [string, "null"]
+        requestedDestinationRealmId:
+          type: [string, "null"]
+    Migration:
+      type: object
+      required: [migrationId, state, sourceServerId, sourceRealmId, destinationPolicy, createdAt]
+      properties:
+        migrationId:
+          type: string
+        state:
+          enum: [REQUESTED, PREPARING, READY, REDEEMED, REJECTED, EXPIRED]
+        sourceServerId:
+          type: string
+        sourceRealmId:
+          type: string
+        destinationPolicy:
+          enum: [ANY_COMPATIBLE_SERVER, ALLOWED_SERVERS, RECOMMENDED_SERVERS, NPC]
+        allowedServerIds:
+          type: array
+          items:
+            type: string
+        recommendedServerIds:
+          type: array
+          items:
+            type: string
+        credential:
+          type: [string, "null"]
+        transferManifest:
+          type: object
+          additionalProperties: true
+        createdAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: [string, "null"]
+          format: date-time
+    ImportMigrationRequest:
+      type: object
+      required: [credential, destinationRealmId, destinationCompatibilityProfile]
+      properties:
+        credential:
+          type: string
+        destinationRealmId:
+          type: string
+        destinationCompatibilityProfile:
+          $ref: "#/components/schemas/CompatibilityProfile"

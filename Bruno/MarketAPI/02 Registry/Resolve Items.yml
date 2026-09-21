@@ -1,0 +1,27 @@
+info:
+  name: Resolve Items
+  type: http
+  seq: 2
+  tags: [registry, items]
+http:
+  method: POST
+  url: "{{baseUrl}}/v1/registry/items:resolve"
+  auth: inherit
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "snapshotDigest": "sha256:replace-with-current-snapshot",
+        "itemIds": [
+          "equilibrium:wood",
+          "farmer_addon:seed"
+        ]
+      }
+settings:
+  encodeUrl: true
+  timeout: 10000
+docs: |-
+  Resolves fully qualified canonical Item IDs against one immutable snapshot.
