@@ -52,6 +52,7 @@
 ExportedObj/
 .consulo/
 *.csproj
+!tools/purecheck/Equilibrium.PureCheck.csproj
 *.unityproj
 *.sln
 *.slnx
@@ -113,6 +114,10 @@ InitTestScene*.unity*
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
 
+# NuGetForUnity restored package payloads. Exact roots stay pinned in
+# Assets/packages.config; CI restores the payload before Unity compilation.
+/[Aa]ssets/[Pp]ackages/
+
 # Game Studio framework distribution
 #
 # The vendored framework lives under codex/ and stays local to the workspace.
@@ -138,3 +143,9 @@ docs/consistency-failures.md
 
 Packages/manifest.json
 Packages/packages-lock.json
+# offline compile check for pure assemblies (dotnet build tools/purecheck)
+tools/purecheck/bin/
+tools/purecheck/obj/
+
+# generated reference addon (Equilibrium/Content/Export Reference Addon)
+/Addons/_reference/

@@ -7,7 +7,7 @@
 > **Priority**: MVP
 > **Engine Risk**: MEDIUM (MessagePack-CSharp AOT on Unity 6.6 IL2CPP — spike first)
 > **Manifest Version**: 2026-09-20.1
-> **Stories**: Not yet created — run `/create-stories save-load`
+> **Stories**: 3 (table below)
 
 ## Overview
 
@@ -38,6 +38,14 @@ Implement tick-boundary saves as MessagePack + LZ4 documents with string keys, `
 - IL2CPP Windows build round-trips a save.
 - MessagePack-CSharp pinned in `Packages/manifest.json` and Allowed Libraries updated with the version.
 
+## Stories
+
+| # | Story | Type | Status |
+|---|-------|------|--------|
+| 001 | MessagePack compatibility spike and SaveDocument schema v1 | Integration | Complete |
+| 002 | SaveService with tick-boundary capture, atomic write, and backups | Integration | Ready |
+| 003 | Migrations, validation refusals, and Unknown hydration | Logic | Ready |
+
 ## Next Step
 
-Run `/create-stories save-load`.
+Story 001 passed Windows IL2CPP Player verification on 2026-11-04. Connect SaveService boundary capture and backups in story 002 after its grid/container dependencies are ready. Codec completion is not complete factory save/load.

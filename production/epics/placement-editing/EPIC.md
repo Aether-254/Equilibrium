@@ -7,7 +7,7 @@
 > **Priority**: MVP (subset) / Vertical Slice (full)
 > **Engine Risk**: MEDIUM (Input System actions; preview rendering)
 > **Manifest Version**: 2026-09-20.1
-> **Stories**: Not yet created — run `/create-stories placement-editing`
+> **Stories**: 3 (table below)
 
 ## Overview
 
@@ -37,6 +37,14 @@ Implement the player's editing tools in two tranches. MVP: mode selection with h
 - VS criteria tracked as separate stories; frame-budget test for pathfinding.
 - Prototype `MachinePlacer.cs` removed; `conveyorPrefab` unassigned-reference issue resolved by deletion.
 
+## Stories
+
+| # | Story | Type | Status |
+|---|-------|------|--------|
+| 001 | Placement modes, machine ghosts, rotation, and removal | Integration | Ready |
+| 002 | Shift straight-line belt drag and deterministic preview comparator | Integration | Ready |
+| 003 | Free-drag pathfinder, reuse analysis, auto-blockers, and carry mode (VS) | Logic | Ready |
+
 ## Next Step
 
-Run `/create-stories placement-editing`.
+Run `/story-readiness production/epics/placement-editing/story-001-modes-ghosts-remove.md` then `/dev-story`.

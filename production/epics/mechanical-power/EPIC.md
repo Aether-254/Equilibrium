@@ -7,7 +7,7 @@
 > **Priority**: MVP
 > **Engine Risk**: LOW (simulation); MEDIUM for the baked-sprite animation path
 > **Manifest Version**: 2026-09-20.1
-> **Stories**: Not yet created — run `/create-stories mechanical-power`
+> **Stories**: 3 (table below)
 
 ## Overview
 
@@ -35,6 +35,14 @@ Implement the Tier 1 fidelity contract: union-find mechanical networks over rota
 - mechanical-power acceptance criteria as EditMode tests, benchmark for TR-mech-004.
 - Shaft sprite in `Main.unity` rotates from committed omega in PlayMode test.
 
+## Stories
+
+| # | Story | Type | Status |
+|---|-------|------|--------|
+| 001 | Mechanical network discovery and segment speeds | Logic | Ready |
+| 002 | Torque demand, efficiency, binary stall, delivered power, and fuel | Logic | Ready |
+| 003 | Shaft and gear presentation from committed omega | Visual/Feel | Ready |
+
 ## Next Step
 
-Run `/create-stories mechanical-power`.
+Run `/story-readiness production/epics/mechanical-power/story-001-network-and-segments.md` then `/dev-story`.

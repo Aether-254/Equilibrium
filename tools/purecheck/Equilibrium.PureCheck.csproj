@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Offline compile + NUnit run for the pure (no UnityEngine) assemblies and their EditMode tests.
+       Not used by Unity. Tests that touch UnityEngine are excluded via the EQ_PURE define. -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <IsPackable>false</IsPackable>
+    <AssemblyName>Equilibrium.PureCheck</AssemblyName>
+    <DefineConstants>$(DefineConstants);EQ_PURE;EQ_DEBUG_SNAPSHOT</DefineConstants>
+    <NoWarn>CS1591</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\..\Assets\Scripts\Content\**\*.cs" />
+    <Compile Include="..\..\Assets\Scripts\Simulation\**\*.cs" />
+    <Compile Include="..\..\Assets\Scripts\Editing\**\*.cs" />
+    <Compile Include="..\..\Assets\Tests\EditMode\TickSimulation\TestDoubles.cs" />
+    <Compile Include="..\..\Assets\Tests\EditMode\TickSimulation\TransactionCommitTests.cs" />
+    <Compile Include="..\..\Assets\Tests\EditMode\TickSimulation\ResolveTests.cs" />
+    <Compile Include="..\..\Assets\Tests\EditMode\TickSimulation\TieBreakSourceTests.cs" />
+    <Compile Include="..\..\Assets\Tests\EditMode\TickSimulation\EventBusAndBoundaryTests.cs" />
+    <Compile Include="..\..\Assets\Tests\EditMode\ItemRegistry\**\*.cs" />
+    <Compile Include="..\..\Assets\Tests\EditMode\GridWorld\**\*.cs" />
+    <Compile Include="..\..\Assets\Tests\EditMode\Logistics\**\*.cs" />
+    <Compile Include="..\..\Assets\Tests\EditMode\FactoryEditing\**\*.cs" />
+    <Compile Include="..\..\Assets\Tests\EditMode\SaveLoad\**\*.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="NUnit" Version="3.14.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="MessagePack" Version="3.1.12" />
+  </ItemGroup>
+</Project>

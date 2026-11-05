@@ -57,6 +57,18 @@ Implement a pure C# `TickEngine` class (no Unity dependency) in a runtime assemb
 
 A `TickPump` MonoBehaviour (in `Equilibrium.Unity`) advances the engine by whole ticks based on the time-control layer; it never partially advances a tick.
 
+### Logistics batch implementation note (2026-11-04)
+
+The first conveyor/accessor implementation submits one atomic logistics batch. An optional
+`ITickBatchPlanner` stages that batch during Resolve using the engine's per-tick entropy source;
+`WorldWriter` applies it only if its captured world revision is still current. Detailed committed
+transfers are published by `LogisticsSystem` during Emit. This bounds whole-group vacancy handling
+and current-tick stalled merges without sequential inventory mutation during Collect/Resolve.
+
+The generic resolver and its transaction format remain available for other systems. Fine-grained
+cross-system resource arbitration is not completed by this batch implementation. See
+`docs/architecture/logistics-runtime.md` for integration rules and the conservative conflict behavior.
+
 ### Architecture Diagram
 ```
 [TickPump (MonoBehaviour)] --advance(n)--> [TickEngine]

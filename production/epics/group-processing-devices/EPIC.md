@@ -7,7 +7,7 @@
 > **Priority**: Alpha
 > **Engine Risk**: LOW
 > **Manifest Version**: 2026-09-20.1
-> **Stories**: Not yet created — run `/create-stories group-processing-devices`
+> **Stories**: 1 (table below)
 
 ## Overview
 
@@ -30,6 +30,12 @@ Implement Splitter (RoundRobin, Divide, Ratio), Combiner (same-ItemId merge in p
 
 - group-processing-devices acceptance criteria as EditMode tests.
 
+## Stories
+
+| # | Story | Type | Status |
+|---|-------|------|--------|
+| 001 | Splitter, Combiner, and Batcher | Logic | Ready |
+
 ## Next Step
 
-Run `/create-stories group-processing-devices`.
+Run `/story-readiness production/epics/group-processing-devices/story-001-devices.md` then `/dev-story`.

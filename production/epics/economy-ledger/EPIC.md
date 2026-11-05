@@ -7,7 +7,7 @@
 > **Priority**: MVP
 > **Engine Risk**: LOW
 > **Manifest Version**: 2026-09-20.1
-> **Stories**: Not yet created — run `/create-stories economy-ledger`
+> **Stories**: 2 (table below)
 
 ## Overview
 
@@ -34,6 +34,13 @@ Implement the pure event consumer that turns committed events into profit, unit 
 - economy-ledger acceptance criteria as EditMode tests; 500-machine benchmark under 0.5 ms.
 - Static test: no reference from EconomyLedger to IMarketBackend/MarketSystem.
 
+## Stories
+
+| # | Story | Type | Status |
+|---|-------|------|--------|
+| 001 | Ledger event consumer, windows, and profit/unit-cost formulas | Logic | Ready |
+| 002 | Fuel apportionment, per-machine records, and loss attribution | Logic | Ready |
+
 ## Next Step
 
-Run `/create-stories economy-ledger`.
+Run `/story-readiness production/epics/economy-ledger/story-001-ledger-core.md` then `/dev-story`.

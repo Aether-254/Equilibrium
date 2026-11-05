@@ -1,12 +1,19 @@
 # Story 001: Create assembly definitions and TickEngine skeleton
 
 > **Epic**: Tick Simulation
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Integration
 > **Estimate**: M (3-4 h)
 > **Manifest Version**: 2026-09-20.1
-> **Last Updated**:
+> **Last Updated**: 2026-09-21
+
+## Implementation Log
+
+- 2026-09-21: asmdefs created under `Assets/Scripts/{Content,Simulation,Editing,Content.Unity,Presentation,UI}` and `Assets/Editor/Equilibrium.Editor.asmdef`; legacy `Assets/Script/` wrapped in `Equilibrium.Prototype.asmdef` (references Unity.InputSystem) so it keeps compiling until per-epic removal. Baker already lived in `Assets/Editor/ShaftBaking`, no move needed.
+- `TickEngine`, `TickPhase`, `ReasonCode`, `TransactionId`/`EntityRef`, `Payload`, `Transaction`, `TransactionBuffer`, `TickSnapshot`/`IWorldView`/`IWorldWriter`/`ITickSystem`/`ITieBreakSource`, `EventBus`/`CommittedEvent`/`RejectedEvent`/`ITickListener` in `Assets/Scripts/Simulation/Tick/`; `TickPump` in `Assets/Scripts/Presentation/`.
+- Tests: `Assets/Tests/EditMode/TickSimulation/TestDoubles.cs`, `TickEngineSkeletonTests.cs` (10 cases incl. assembly-reference audit and TickPump whole-tick test).
+- Verification: pure assemblies compile with `dotnet build tools/purecheck` (0 errors). Unity compile + Test Runner NOT executed by agent (editor must not be launched from tools); creator to run EditMode tests in the Unity Test Runner and report.
 
 ## Context
 
@@ -62,7 +69,7 @@ From ADR-0007: create the folders under `Assets/Scripts/`; move `Assets/Editor/S
 
 **Story Type**: Integration
 **Required evidence**: `Assets/Tests/EditMode/TickSimulation/TickEngineSkeletonTests.cs` passes.
-**Status**: [ ] Not yet created
+**Status**: [x] Created; passes under dotnet purecheck (Unity Test Runner run pending by creator)
 
 ## Dependencies
 

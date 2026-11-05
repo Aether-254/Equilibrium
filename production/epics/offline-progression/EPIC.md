@@ -7,7 +7,7 @@
 > **Priority**: Full Vision
 > **Engine Risk**: LOW
 > **Manifest Version**: 2026-09-20.1
-> **Stories**: Not yet created — run `/create-stories offline-progression`
+> **Stories**: 1 (table below)
 
 ## Overview
 
@@ -32,6 +32,12 @@ Implement capped offline advancement using the same engine and constraints: full
 
 - offline-progression acceptance criteria as EditMode tests, including replay-vs-event equivalence on reference factories.
 
+## Stories
+
+| # | Story | Type | Status |
+|---|-------|------|--------|
+| 001 | Offline recompute with method selection, equivalence tests, and report | Logic | Blocked |
+
 ## Next Step
 
-Run `/create-stories offline-progression` after the recompute-method ADR is Accepted.
+Run `/story-readiness production/epics/offline-progression/story-001-offline-recompute.md` then `/dev-story`.

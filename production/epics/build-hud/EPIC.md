@@ -8,7 +8,7 @@
 > **Priority**: Vertical Slice (MVP subset: sidebar, economy strip, preview tints, basic reasons)
 > **Engine Risk**: HIGH (UI Toolkit); MEDIUM (sprite overlays)
 > **Manifest Version**: 2026-09-20.1
-> **Stories**: Not yet created — run `/create-stories build-hud`
+> **Stories**: 1 (table below)
 
 ## Overview
 
@@ -32,6 +32,12 @@ Implement the always-on building interface: mode sidebar with remappable hotkeys
 - build-hud acceptance criteria as PlayMode tests.
 - Text-field focus suppresses hotkeys; dialogs keyboard-dismissible.
 
+## Stories
+
+| # | Story | Type | Status |
+|---|-------|------|--------|
+| 001 | Mode sidebar, economy strip, previews, markers, and dialogs | UI | Ready |
+
 ## Next Step
 
-Run `/create-stories build-hud`.
+Run `/story-readiness production/epics/build-hud/story-001-hud.md` then `/dev-story`.

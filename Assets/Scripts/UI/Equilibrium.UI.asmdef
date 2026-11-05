@@ -1,0 +1,20 @@
+{
+    "name": "Equilibrium.UI",
+    "rootNamespace": "Equilibrium.UI",
+    "references": [
+        "Equilibrium.Content",
+        "Equilibrium.Simulation",
+        "Equilibrium.Editing",
+        "Equilibrium.Presentation",
+        "Unity.InputSystem"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

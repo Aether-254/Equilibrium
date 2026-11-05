@@ -7,7 +7,7 @@
 > **Priority**: Alpha
 > **Engine Risk**: HIGH (custom VisualElement graph)
 > **Manifest Version**: 2026-09-20.1
-> **Stories**: Not yet created — run `/create-stories tech-unlock`
+> **Stories**: 1 (table below)
 
 ## Overview
 
@@ -32,6 +32,12 @@ Implement data-driven unlock nodes with any-of condition groups (metrics, task c
 
 - tech-unlock acceptance criteria as EditMode tests; graph screen PlayMode smoke.
 
+## Stories
+
+| # | Story | Type | Status |
+|---|-------|------|--------|
+| 001 | Unlock nodes, condition evaluation, validation, and graph screen | Logic | Ready |
+
 ## Next Step
 
-Run `/create-stories tech-unlock`.
+Run `/story-readiness production/epics/tech-unlock/story-001-unlock-nodes-and-graph.md` then `/dev-story`.

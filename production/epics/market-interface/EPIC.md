@@ -7,7 +7,7 @@
 > **Priority**: MVP
 > **Engine Risk**: LOW (simulation); HIGH for the UI Toolkit market screen
 > **Manifest Version**: 2026-09-20.1
-> **Stories**: Not yet created — run `/create-stories market-interface`
+> **Stories**: 4 (table below)
 
 ## Overview
 
@@ -36,6 +36,15 @@ Implement the replaceable market boundary and the MVP local backend: save-level 
 - market-interface acceptance criteria as EditMode tests; contract tests against a fake remote backend.
 - Market screen and world-creation selector implemented per UX (spec to be authored).
 
+## Stories
+
+| # | Story | Type | Status |
+|---|-------|------|--------|
+| 001 | IMarketBackend interface, warehouse, and LocalNpc quotes | Logic | Ready |
+| 002 | Sell escrow, immediate settlement, and FIFO window queue | Logic | Ready |
+| 003 | Buy with full capacity reservation, currency guards, and ledger events | Logic | Ready |
+| 004 | Market screen and world-creation market mode selector | UI | Ready |
+
 ## Next Step
 
-Run `/create-stories market-interface`.
+Run `/story-readiness production/epics/market-interface/story-001-backend-warehouse-quotes.md` then `/dev-story`.

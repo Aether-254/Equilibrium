@@ -1,12 +1,20 @@
 # Story 004: ScriptableObject and JSON content sources with shared validator
 
 > **Epic**: Item Registry
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Integration
 > **Estimate**: M
 > **Manifest Version**: 2026-09-20.1
-> **Last Updated**:
+> **Last Updated**: 2026-09-21
+
+## Implementation Log (2026-09-21)
+
+Deviations from the story plan, both to be reflected in ADR-0003 consequences:
+- JSON parsing uses Newtonsoft.Json (shipped with Unity as `com.unity.nuget.newtonsoft-json`, referenced as a precompiled assembly so `Equilibrium.Content` stays `noEngineReferences`) instead of `System.Text.Json`, which is not available on Unity's .NET Standard 2.1 profile. Unknown item fields are preserved through `JObject` into `ItemDefData.Extras`.
+- Base content ships as a `ContentCatalog` ScriptableObject under `Assets/Resources/` (loaded with `Resources.Load`) rather than an Addressables label, because the Addressables package is not installed. `ScriptableObjectContentSource` keeps the `IContentSource` boundary so switching to Addressables later touches one class.
+- Tier 1 content is defined in code (`Tier1Content.Build()`); the editor menu `Equilibrium/Content/Generate Tier 1 Assets` materializes it as SO assets + catalog, `Export Reference Addon` writes `Addons/_reference/`, `Validate Catalog` runs the shared loader. `Assets/Resources/ContentCatalog.asset` and `Assets/Content/**` are created by the creator running the menu in Unity (not by the agent).
+- Files: `Assets/Scripts/Content/{Items/ItemId.cs, Items/ItemIdTable.cs, Items/TagGraph.cs, ContentError.cs, ContentRegistry.cs, ContentLoader.cs, PackPass.cs, Data/*, Sources/JsonContentSource.cs, Tier1Content.cs}`, `Assets/Scripts/Content.Unity/ContentAssets.cs`, `Assets/Editor/ContentTools.cs`; tests `Assets/Tests/EditMode/ItemRegistry/*` (42 cases) and `Assets/Tests/PlayMode/ItemRegistry/ContentCatalogTests.cs`.
 
 ## Context
 
@@ -53,7 +61,7 @@ Keep records `sealed record` types in `Equilibrium.Content`; SO assets hold seri
 
 **Story Type**: Integration
 **Required evidence**: `Assets/Tests/EditMode/ItemRegistry/ContentSourceParityTests.cs`; PlayMode Addressables load test
-**Status**: [ ] Not yet created
+**Status**: [x] Created; passes under dotnet purecheck (Unity Test Runner run pending by creator)
 
 ## Dependencies
 

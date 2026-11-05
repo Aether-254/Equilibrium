@@ -1,12 +1,12 @@
 # Story 002: Transaction buffers, snapshot, and atomic commit
 
 > **Epic**: Tick Simulation
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: M
 > **Manifest Version**: 2026-09-20.1
-> **Last Updated**:
+> **Last Updated**: 2026-09-21
 
 ## Context
 
@@ -68,7 +68,7 @@ Use a minimal `FakeWorld` with two integer "slots" for this story; the real tabl
 
 **Story Type**: Logic
 **Required evidence**: `Assets/Tests/EditMode/TickSimulation/TransactionCommitTests.cs`
-**Status**: [ ] Not yet created
+**Status**: [x] Created; passes under dotnet purecheck (Unity Test Runner run pending by creator)
 
 ## Dependencies
 

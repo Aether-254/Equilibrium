@@ -7,7 +7,7 @@
 > **Priority**: Alpha
 > **Engine Risk**: MEDIUM
 > **Manifest Version**: 2026-09-20.1
-> **Stories**: Not yet created — run `/create-stories blueprint`
+> **Stories**: 1 (table below)
 
 ## Overview
 
@@ -32,6 +32,12 @@ Implement region capture into blueprint data, stamping with rotation that transf
 
 - blueprint acceptance criteria as EditMode tests.
 
+## Stories
+
+| # | Story | Type | Status |
+|---|-------|------|--------|
+| 001 | Blueprint capture, rotation transform, stamping, and build orders | Logic | Ready |
+
 ## Next Step
 
-Run `/create-stories blueprint`.
+Run `/story-readiness production/epics/blueprint/story-001-blueprints.md` then `/dev-story`.

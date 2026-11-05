@@ -231,11 +231,11 @@ formulas:
       - design/gdd/machine-processing.md
       - design/gdd/economy-ledger.md
       - design/gdd/offline-progression.md
-    variables: [tau_req, omega_seg, eta_path, stalled]
+    variables: [tau_req, omega_seg, stalled]
     output_range: [0, 100000]
-    expression: "P_recv = tau_req * omega_seg * eta_path if not stalled else 0"
+    expression: "P_recv = tau_req * omega_seg if not stalled else 0"
     added: 2026-09-20
-    revised: ""
+    revised: "2026-11-05: count transmission loss once in source demand"
 
   - name: work_integration
     status: active

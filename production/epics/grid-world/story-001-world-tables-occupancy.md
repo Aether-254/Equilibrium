@@ -1,12 +1,12 @@
 # Story 001: World tables, occupancy, and orientation
 
 > **Epic**: Grid World
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: M
 > **Manifest Version**: 2026-09-20.1
-> **Last Updated**:
+> **Last Updated**: 2026-09-23
 
 ## Context
 
@@ -24,12 +24,12 @@
 
 ## Acceptance Criteria
 
-- [ ] `WorldGrid(width, height)` with cells outside bounds treated as an immutable Void block.
-- [ ] `BlockTable` stores def handle, orientation (0..3), controllerCoord, container range, port range, persistent bag index.
-- [ ] Place transaction on an occupied cell fails `CellOccupied`; world unchanged (GDD AC 6).
-- [ ] Remove transaction empties the cells and yields a drop record; rotate updates orientation effective next tick.
-- [ ] Dirty chunk bits set on any structural change; snapshot only rebuilds dirty chunk views; benchmark under 0.2 ms.
-- [ ] Table compaction after removals preserves `BlockRef` validity within the tick and remaps between ticks.
+- [x] `WorldGrid(width, height)` with cells outside bounds treated as an immutable Void block.
+- [x] `BlockTable` stores def handle, orientation (0..3), controllerCoord, container range, port range, persistent bag index.
+- [x] Place transaction on an occupied cell fails `CellOccupied`; world unchanged (GDD AC 6).
+- [x] Remove transaction empties the cells and yields a drop record; rotate updates orientation effective next tick.
+- [x] Dirty chunk bits set on any structural change; snapshot only rebuilds dirty chunk views; benchmark under 0.2 ms.
+- [x] Table compaction after removals preserves `BlockRef` validity within the tick and remaps between ticks.
 
 ## Implementation Notes
 
@@ -51,7 +51,25 @@ Use `int[]` for cellToBlock with -1 empty and -2 void sentinel; `BitArray` per c
 
 **Story Type**: Logic
 **Required evidence**: `Assets/Tests/EditMode/GridWorld/WorldTablesTests.cs`
-**Status**: [ ] Not yet created
+**Status**: [x] Complete — 10 focused Grid World tests pass in both purecheck and Unity EditMode. Unity measured 10 dirty chunk rebuilds at 0.0570 ms. See `production/qa/evidence/grid-world-001-evidence.md`.
+
+## Changed Files
+
+- `Assets/Scripts/Simulation/World/BlockDefinition.cs`
+- `Assets/Scripts/Simulation/World/WorldState.cs`
+- `Assets/Scripts/Simulation/World/WorldView.cs`
+- `Assets/Scripts/Simulation/World/WorldWriter.cs`
+- `Assets/Scripts/Simulation/World/WorldSnapshot.cs`
+- `Assets/Scripts/Simulation/World/WorldTransactions.cs`
+- `Assets/Tests/EditMode/GridWorld/WorldTablesTests.cs`
+- `tools/purecheck/Equilibrium.PureCheck.csproj`
+
+## Verification
+
+- `dotnet test tools/purecheck/Equilibrium.PureCheck.csproj --configuration Debug --no-restore`: 79 passed, 3 Unity-only assembly audits skipped, 0 failed.
+- Unity CLI EditMode on Unity 6000.6.1f1: 91 passed, 1 debug-define-only test skipped, 0 failed.
+- Unity Grid World subset: 10 passed, 0 failed.
+- 512x512 world, 10 dirty chunks: 0.0570 ms per immutable chunk-view rebuild in Unity EditMode.
 
 ## Dependencies
 

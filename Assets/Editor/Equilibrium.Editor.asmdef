@@ -1,0 +1,25 @@
+{
+    "name": "Equilibrium.Editor",
+    "rootNamespace": "Equilibrium.Editor",
+    "references": [
+        "Equilibrium.Content",
+        "Equilibrium.Simulation",
+        "Equilibrium.Editing",
+        "Equilibrium.Content.Unity",
+        "Equilibrium.Presentation",
+        "Equilibrium.UI",
+        "Equilibrium.Prototype",
+        "Unity.2D.Sprite.Editor"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

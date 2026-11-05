@@ -7,7 +7,7 @@
 > **Priority**: Alpha
 > **Engine Risk**: HIGH (URP 17 shader/material work; Render Graph if a custom pass is needed)
 > **Manifest Version**: 2026-09-20.1
-> **Stories**: Not yet created — run `/create-stories glass-pipe`
+> **Stories**: 2 (table below)
 
 ## Overview
 
@@ -32,6 +32,13 @@ Implement the fluid carrier's binding content schema (components with SubstanceI
 
 - glass-pipe acceptance criteria: schema and flow as EditMode tests; visual rules as PlayMode screenshot evidence in `production/qa/evidence/`.
 
+## Stories
+
+| # | Story | Type | Status |
+|---|-------|------|--------|
+| 001 | Pipe content schema, connectivity, and Alpha flow | Logic | Ready |
+| 002 | Mask-driven pipe content visuals | Visual/Feel | Ready |
+
 ## Next Step
 
-Run `/create-stories glass-pipe`.
+Run `/story-readiness production/epics/glass-pipe/story-001-schema-connectivity-flow.md` then `/dev-story`.

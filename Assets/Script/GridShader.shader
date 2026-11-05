@@ -24,6 +24,7 @@ Shader "Custom/GridShader"
         Pass
         {
             HLSLPROGRAM
+
             #pragma vertex vert
             #pragma fragment frag
 
@@ -32,7 +33,6 @@ Shader "Custom/GridShader"
             struct Attributes
             {
                 float4 positionOS : POSITION;
-                float2 uv : TEXCOORD0;
             };
 
             struct Varyings
@@ -49,25 +49,40 @@ Shader "Custom/GridShader"
             Varyings vert(Attributes IN)
             {
                 Varyings OUT;
+
                 OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
                 OUT.positionWS = TransformObjectToWorld(IN.positionOS.xyz);
+
                 return OUT;
             }
 
             half4 frag(Varyings IN) : SV_Target
             {
-                float2 worldPos = IN.positionWS.xy / _GridSize + _GridOffset.xy;
-                float2 distanceToLine = abs(frac(worldPos) - 0.5);
-                float2 antialias = max(fwidth(worldPos), 0.00001);
-                float2 line = 1.0 - smoothstep(
-                    _LineWidth,
-                    _LineWidth + antialias,
-                    distanceToLine
-                );
-                float alpha = max(line.x, line.y);
+                float2 worldPos =
+                    IN.positionWS.xy / max(_GridSize, 0.00001)
+                    + _GridOffset.xy;
 
-                return half4(_GridColor.rgb, _GridColor.a * alpha);
+                float2 distanceToLine =
+                    abs(frac(worldPos) - 0.5);
+
+                float2 antialias =
+                    max(fwidth(worldPos), float2(0.00001, 0.00001));
+
+                float2 lineMask =
+                    1.0 - smoothstep(
+                        float2(_LineWidth, _LineWidth),
+                        float2(_LineWidth, _LineWidth) + antialias,
+                        distanceToLine
+                    );
+
+                float alpha = max(lineMask.x, lineMask.y);
+
+                return half4(
+                    _GridColor.rgb,
+                    _GridColor.a * alpha
+                );
             }
+
             ENDHLSL
         }
     }

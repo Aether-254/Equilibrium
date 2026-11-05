@@ -7,7 +7,7 @@
 > **Priority**: Vertical Slice
 > **Engine Risk**: LOW
 > **Manifest Version**: 2026-09-20.1
-> **Stories**: Not yet created — run `/create-stories multiblock`
+> **Stories**: 1 (table below)
 
 ## Overview
 
@@ -32,6 +32,12 @@ Implement Controller/Slave structures: Type I pattern detection on block update 
 
 - multiblock acceptance criteria as EditMode tests.
 
+## Stories
+
+| # | Story | Type | Status |
+|---|-------|------|--------|
+| 001 | Type I/II structures, formation, invalidation, and frozen state | Logic | Ready |
+
 ## Next Step
 
-Run `/create-stories multiblock`.
+Run `/story-readiness production/epics/multiblock/story-001-structures.md` then `/dev-story`.

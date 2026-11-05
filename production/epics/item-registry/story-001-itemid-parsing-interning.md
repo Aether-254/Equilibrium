@@ -1,12 +1,12 @@
 # Story 001: ItemId parsing, canonicalization, and interning
 
 > **Epic**: Item Registry
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: S
 > **Manifest Version**: 2026-09-20.1
-> **Last Updated**:
+> **Last Updated**: 2026-09-21
 
 ## Context
 
@@ -51,7 +51,7 @@ Regex `^[a-z0-9][a-z0-9._-]*:[a-z0-9][a-z0-9._/-]*$` compiled once. Intern table
 
 **Story Type**: Logic
 **Required evidence**: `Assets/Tests/EditMode/ItemRegistry/ItemIdTests.cs`
-**Status**: [ ] Not yet created
+**Status**: [x] Created; passes under dotnet purecheck (Unity Test Runner run pending by creator)
 
 ## Dependencies
 

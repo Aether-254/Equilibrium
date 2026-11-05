@@ -3,11 +3,11 @@
 > **Layer**: Feature
 > **GDD**: design/gdd/item-io-accessor.md
 > **Architecture Module**: AccessorSystem (Equilibrium.Simulation); accessor overlay sprite (Equilibrium.Presentation); settings UI (Equilibrium.UI)
-> **Status**: Ready
+> **Status**: In Progress
 > **Priority**: MVP
 > **Engine Risk**: LOW (simulation); HIGH for the UI Toolkit settings controls
 > **Manifest Version**: 2026-09-20.1
-> **Stories**: Not yet created — run `/create-stories item-io-accessor`
+> **Stories**: 2 (table below)
 
 ## Overview
 
@@ -35,6 +35,14 @@ Implement the belt attachment that moves items between plain containers (or acce
 - Settings edits apply as next-tick transactions (PlayMode UI test).
 - Prototype `ItemTransferLink`, `ItemSource`, `StorageBox` removed.
 
+## Stories
+
+| # | Story | Type | Status |
+|---|-------|------|--------|
+| 001 | Accessor attachment, flow modes, filter, and quantity formulas | Logic | In Progress |
+| 002 | Accessor overlay sprite and settings controls | UI | Ready |
+
 ## Next Step
 
-Run `/create-stories item-io-accessor`.
+Integrate queued settings edits, save capture/hydration and world overlays on the verified atomic
+logistics core. See `production/qa/evidence/logistics-runtime-evidence.md`.

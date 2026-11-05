@@ -7,7 +7,7 @@
 > **Priority**: MVP
 > **Engine Risk**: LOW
 > **Manifest Version**: 2026-09-20.1
-> **Stories**: Not yet created — run `/create-stories container`
+> **Stories**: 3 (table below)
 
 ## Overview
 
@@ -36,6 +36,14 @@ Implement multi-slot containers on the SoA world: slot storage with effective ca
 - container acceptance criteria as EditMode tests (including determinism and 0.5 ms benchmark).
 - Prototype `ItemStack`/`ItemContainer`/`ContainerTransfer` removed from `Assets/Script/`.
 
+## Stories
+
+| # | Story | Type | Status |
+|---|-------|------|--------|
+| 001 | SlotTable, effective capacity, and filters | Logic | Ready |
+| 002 | Deterministic insertion with single auto-tidy | Logic | Ready |
+| 003 | String-key port binding, overflow container, and prototype removal | Integration | Ready |
+
 ## Next Step
 
-Run `/create-stories container`.
+Run `/story-readiness production/epics/container/story-001-slots-capacity-filters.md` then `/dev-story`.

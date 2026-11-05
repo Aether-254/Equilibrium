@@ -8,7 +8,7 @@
 > **Priority**: MVP
 > **Engine Risk**: HIGH (UI Toolkit runtime data binding on Unity 6.6 — spike first)
 > **Manifest Version**: 2026-09-20.1
-> **Stories**: Not yet created — run `/create-stories machine-inspection-ui`
+> **Stories**: 2 (table below)
 
 ## Overview
 
@@ -34,6 +34,13 @@ Implement the UI Toolkit inspection panel: persistent status bar with prioritize
 - UI under 1 ms per frame with the panel open (benchmark).
 - Accessibility rules 1, 3, 5, 6, 7 verified (color+glyph, scaling, focus, keyboard, sizes).
 
+## Stories
+
+| # | Story | Type | Status |
+|---|-------|------|--------|
+| 001 | UI Toolkit shell, data-binding spike, and inspection status bar | UI | Ready |
+| 002 | Tab contents, bottleneck line, and intents | UI | Ready |
+
 ## Next Step
 
-Run `/create-stories machine-inspection-ui`.
+Run `/story-readiness production/epics/machine-inspection-ui/story-001-shell-binding-status-bar.md` then `/dev-story`.

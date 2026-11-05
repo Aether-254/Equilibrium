@@ -3,11 +3,11 @@
 > **Layer**: Feature
 > **GDD**: design/gdd/conveyor.md
 > **Architecture Module**: ConveyorSystem (Equilibrium.Simulation); belt rendering + group interpolation (Equilibrium.Presentation)
-> **Status**: Ready
+> **Status**: In Progress
 > **Priority**: MVP
 > **Engine Risk**: MEDIUM (sprite atlas / SRP Batcher on URP 17)
 > **Manifest Version**: 2026-09-20.1
-> **Stories**: Not yet created — run `/create-stories conveyor`
+> **Stories**: 3 (table below)
 
 ## Overview
 
@@ -36,6 +36,16 @@ Implement belts as one-slot containers with whole-group hops, dependency-ordered
 - PlayMode: group sprite position equals committed cell at each tick boundary.
 - Prototype `Conveyor.cs` and `Conveyor.prefab` trigger collider removed.
 
+## Stories
+
+| # | Story | Type | Status |
+|---|-------|------|--------|
+| 001 | Belt cells, whole-group movement, and same-tick chaining | Logic | In Progress |
+| 002 | Stall derivation and partial delivery through accessors | Logic | In Progress |
+| 003 | Belt rendering, group interpolation, and prototype removal | Visual/Feel | Ready |
+
 ## Next Step
 
-Run `/create-stories conveyor`.
+Integrate the verified logistics core with production placement/rendering and machine state. The
+Editor workbench is available at `Equilibrium > Logistics > Open Workbench`; evidence and remaining
+boundaries are in `production/qa/evidence/logistics-runtime-evidence.md`.

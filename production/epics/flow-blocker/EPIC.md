@@ -7,7 +7,7 @@
 > **Priority**: Vertical Slice
 > **Engine Risk**: LOW
 > **Manifest Version**: 2026-09-20.1
-> **Stories**: Not yet created — run `/create-stories flow-blocker`
+> **Stories**: 1 (table below)
 
 ## Overview
 
@@ -32,6 +32,12 @@ Implement side-attached blockers that disable one ingress edge without neighbor 
 
 - flow-blocker acceptance criteria as EditMode tests; dialog PlayMode test.
 
+## Stories
+
+| # | Story | Type | Status |
+|---|-------|------|--------|
+| 001 | Blocker install/remove, ingress semantics, and placement modes | Logic | Ready |
+
 ## Next Step
 
-Run `/create-stories flow-blocker`.
+Run `/story-readiness production/epics/flow-blocker/story-001-blocker-rules-and-modes.md` then `/dev-story`.

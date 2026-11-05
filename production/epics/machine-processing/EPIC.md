@@ -7,7 +7,7 @@
 > **Priority**: MVP
 > **Engine Risk**: MEDIUM (content pipeline for recipes)
 > **Manifest Version**: 2026-09-20.1
-> **Stories**: Not yet created — run `/create-stories machine-processing`
+> **Stories**: 3 (table below)
 
 ## Overview
 
@@ -36,6 +36,14 @@ Implement machines that reserve recipe inputs, integrate received mechanical pow
 - machine-processing acceptance criteria as EditMode tests.
 - Saw with engine and belts runs end to end in `Main.unity` (PlayMode).
 
+## Stories
+
+| # | Story | Type | Status |
+|---|-------|------|--------|
+| 001 | Recipe data, selection, and input reservation | Logic | Ready |
+| 002 | Work integration, completion, blocked output, states and ReasonCodes | Logic | Ready |
+| 003 | Machine state sprites and the Tier 1 end-to-end line | Integration | Ready |
+
 ## Next Step
 
-Run `/create-stories machine-processing`.
+Run `/story-readiness production/epics/machine-processing/story-001-recipes-and-reservation.md` then `/dev-story`.

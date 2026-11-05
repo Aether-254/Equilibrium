@@ -45,7 +45,7 @@ The save-load GDD requires a versioned, migratable format that preserves unknown
 
 Decision (user, 2026-09-20): **MessagePack** via MessagePack-CSharp with AOT-generated resolvers.
 
-1. `SaveDocument` is a MessagePack map with string keys at the top level (`header`, `world`, `containers`, `mech`, `market`, `ledger`, `unlocks`, `tasks`, `extras`). Each section is a `[MessagePackObject(keyAsPropertyName: true)]` record so unknown keys are retained via `IDictionary<string, object> Extras` on every record (`[MessagePackFormatter]` custom formatter preserving unknown members).
+1. `SaveDocument` is a MessagePack map with string keys at the top level (`header`, `world`, `containers`, `mech`, `market`, `ledger`, `unlocks`, `tasks`, `extras`). Every record has `IDictionary<string, object> Extras`. Explicit custom formatters capture unknown members as raw MessagePack values; ordinary generated object formatters alone do not preserve unknown keys. The save resolver statically registers these formatters and has no dynamic or typeless fallback.
 2. `ItemId` serializes as its canonical string; `containerKey`/`slotKey` as strings; indices never appear.
 3. Migrations are ordered `ISaveMigration { int From; int To; void Apply(SaveDocument doc); }` applied in sequence; each is unit-tested with a fixture file.
 4. Files: `saves/<slot>/save.eqs` (MessagePack, LZ4 block compression via `MessagePackSerializerOptions.WithCompression`), rotating `save.1.eqs`..`save.3.eqs`; write to `save.tmp` then rename.
@@ -82,7 +82,7 @@ public sealed class SaveService { Task SaveAsync(int slot); Task<LoadResult> Loa
 ## Consequences
 
 ### Positive
-- Fast, compact saves; unknown-field preservation built in.
+- Compact saves; custom raw-value formatters preserve unknown fields (this is an application responsibility, not automatic library behavior).
 - Clear migration chain with fixtures.
 
 ### Negative
@@ -122,3 +122,11 @@ public sealed class SaveService { Task SaveAsync(int slot); Task<LoadResult> Loa
 
 ## Related Decisions
 - ADR-0001, ADR-0003, ADR-0004, ADR-0008
+
+## Implementation clarification (2026-11-04)
+
+- NuGet `MessagePack` / `MessagePack.Annotations` / analyzer: **3.1.12** in `Assets/packages.config`; Unity integration: Git tag **v3.1.12**, resolved commit `eb108f89700db93e67f10148b777380c244ac6ae` in `Packages/packages-lock.json`. NuGetForUnity is pinned to **v4.5.0**.
+- The schema uses checked-in, hand-written AOT-compatible formatters with a closed resolver. This implements the required custom unknown-member handling without relying on runtime formatter discovery or Reflection.Emit. Source generation is installed as part of the dependency; it is not the production save resolver.
+- Unknown values retain their exact MessagePack bytes and original map location, including extension payloads and non-minimal integer encodings. Re-encoding a whole file or exporting JSON does not promise byte-identical output.
+- `tickIndex` is an unsigned 64-bit integer, matching `TickEngine`. Reservations contain a concrete canonical `itemId` and named `containerKey` / `slotKey`.
+- Schema, codec, debug inspection, and the isolated Player probe are described in `docs/architecture/save-format-v1.md`. Platform acceptance is recorded separately in `production/qa/evidence/save-il2cpp-spike-evidence.md`; dependency pins and .NET test results do not establish IL2CPP compatibility.

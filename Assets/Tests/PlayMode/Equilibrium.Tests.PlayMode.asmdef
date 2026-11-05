@@ -3,7 +3,13 @@
     "rootNamespace": "Equilibrium.Tests.PlayMode",
     "references": [
         "UnityEngine.TestRunner",
-        "UnityEditor.TestRunner"
+        "UnityEditor.TestRunner",
+        "Equilibrium.Content",
+        "Equilibrium.Simulation",
+        "Equilibrium.Editing",
+        "Equilibrium.Content.Unity",
+        "Equilibrium.Presentation",
+        "Equilibrium.UI"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

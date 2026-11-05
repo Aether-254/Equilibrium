@@ -7,7 +7,7 @@
 > **Priority**: MVP
 > **Engine Risk**: LOW
 > **Manifest Version**: 2026-09-20.1
-> **Stories**: Not yet created — run `/create-stories grid-world`
+> **Stories**: 3 (table below)
 
 ## Overview
 
@@ -36,6 +36,14 @@ Implement the struct-of-arrays world: chunked cell grid, block instances with or
 - Snapshot of 512x512 with 10 dirty chunks under 0.2 ms benchmark.
 - Removal drop delivers persistent attributes; `WarehouseFull` failure path tested.
 
+## Stories
+
+| # | Story | Type | Status |
+|---|-------|------|--------|
+| 001 | World tables, occupancy, and orientation | Logic | Complete |
+| 002 | Ports, facing rotation, ingress edges, and connected predicate | Logic | Ready |
+| 003 | Block vs persistent attributes and removal drops | Logic | Ready |
+
 ## Next Step
 
-Run `/create-stories grid-world`.
+Run `/story-readiness production/epics/grid-world/story-001-world-tables-occupancy.md` then `/dev-story`.

@@ -3,11 +3,11 @@
 > **Layer**: Foundation
 > **GDD**: design/gdd/item-registry.md
 > **Architecture Module**: ContentRegistry, AddonLoader, Validator (Equilibrium.Content); ScriptableObject defs + exporter, Addressables load (Equilibrium.Content.Unity)
-> **Status**: Ready
+> **Status**: Implemented (pending creator Unity test run)
 > **Priority**: MVP
 > **Engine Risk**: MEDIUM (Addressables 2.x label load)
 > **Manifest Version**: 2026-09-20.1
-> **Stories**: Not yet created — run `/create-stories item-registry`
+> **Stories**: 4 (table below)
 
 ## Overview
 
@@ -37,6 +37,15 @@ Implement item identity and content loading: interned `ItemId` with canonical na
 - Tier 1 content authored and loads under 200 ms.
 - `Equilibrium.Content.asmdef` has no UnityEngine reference.
 
+## Stories
+
+| # | Story | Type | Status |
+|---|-------|------|--------|
+| 001 | ItemId parsing, canonicalization, and interning | Logic | Complete |
+| 002 | ItemDef records and hierarchical Tag graph | Logic | Complete |
+| 003 | Addon manifest, dependency graph, and UnknownItem | Logic | Complete |
+| 004 | ScriptableObject and JSON content sources with shared validator | Integration | Complete |
+
 ## Next Step
 
-Run `/create-stories item-registry`.
+Run `/story-readiness production/epics/item-registry/story-001-itemid-parsing-interning.md` then `/dev-story`.

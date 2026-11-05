@@ -1,5 +1,19 @@
 {
   "dependencies": {
+    "com.github-glitchenzo.nugetforunity": {
+      "version": "https://github.com/GlitchEnzo/NuGetForUnity.git?path=/src/NuGetForUnity#v4.5.0",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "a7c6b49a0141a5bff9b1983e38137522ef61977d"
+    },
+    "com.github.messagepack-csharp": {
+      "version": "https://github.com/MessagePack-CSharp/MessagePack-CSharp.git?path=src/MessagePack.UnityClient/Assets/Scripts/MessagePack#v3.1.12",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "eb108f89700db93e67f10148b777380c244ac6ae"
+    },
     "com.unity.2d.animation": {
       "version": "16.0.0",
       "depth": 0,
@@ -230,7 +244,7 @@
     },
     "com.unity.nuget.newtonsoft-json": {
       "version": "3.2.2",
-      "depth": 1,
+      "depth": 0,
       "source": "registry",
       "dependencies": {},
       "url": "https://packages.unity.com"

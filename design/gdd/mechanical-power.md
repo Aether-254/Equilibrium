@@ -2,7 +2,7 @@
 
 > **Status**: Approved (creator self-review 2026-09-20; no independent /design-review)
 > **Author**: creator + design session
-> **Last Updated**: 2026-09-20
+> **Last Updated**: 2026-11-05 — creator-confirmed single transmission loss
 > **Implements Pillar**: Realism First (P = tau * omega, conservation, direction), Simple Entry / Unfathomable Depth (see rotation first, measure later, compute last)
 > **Normative Source**: design/confirmed-mechanics-spec.md s16, s9 (rate ownership), game-concept Fidelity Roadmap layer 1
 > **Decisions (2026-09-20)**: machine work advances by pure power integration; MVP power source is fuel-driven with fixed output
@@ -60,7 +60,10 @@ Explicitly deferred to later tiers (state must be extensible, not simulated): mo
 12. If `tau_demand_at_source > tau_max`, the whole network stalls: omega = 0 on every segment for this tick, all attached machines receive zero power and report `Stalled`. Tier 1 has no partial slowdown; it is binary, which makes the cause legible.
 
 **Power delivery**
-13. A non-stalled machine receives `P_recv = tau_req * omega_seg * eta_path`, where `eta_path` is the product of efficiencies from source to machine.
+13. A non-stalled machine receives `P_recv = tau_req * omega_seg`. Transmission efficiency is charged
+    once in source torque demand; it is not multiplied into received power again. Creator-confirmed
+    correction 2026-11-05: with one 99%-efficient shaft, a 30 N*m machine at 10 rad/s receives 300 W
+    while its source supplies approximately 303.03 W. The difference is transmission loss.
 14. machine-processing integrates `P_recv` per tick into work done (its GDD owns `workRequired`).
 
 ### States and Transitions (per network)
@@ -141,10 +144,11 @@ The demand-at-source formula is defined as:
 
 The delivered power formula is defined as:
 
-`P_recv(m) = tau_req(m) * omega_seg(m) * eta_path(m)` if not stalled, else 0
+`P_recv(m) = tau_req(m) * omega_seg(m)` if not stalled, else 0
 
 **Output Range:** 0..tau_req * omega.
-**Example:** tau_req = 30, omega_seg = 5, eta_path = 0.903: P_recv = 135.5 W.
+**Example:** tau_req = 30, omega_seg = 5, eta_path = 0.903: P_recv = 150 W.
+The source supplies 150 / 0.903 = 166.11 W for this load; about 16.11 W is lost in transmission.
 
 The fuel consumption formula is defined as:
 
@@ -208,7 +212,7 @@ Inspection Mechanics tab per machine: omega (RPM), tau_req, tau_avail on segment
 
 ## Acceptance Criteria
 
-- **GIVEN** an engine (omega 10, tau_max 40) driving a shaft to one machine with tau_req 30, **WHEN** ticked, **THEN** omega_seg = 10, P_recv = 300 * eta_path, network Running.
+- **GIVEN** an engine (omega 10, tau_max 40) driving one 99%-efficient shaft to one machine with tau_req 30, **WHEN** ticked, **THEN** omega_seg = 10, P_recv = 300 W, source power = 300 / 0.99 W, network Running.
 - **GIVEN** the same network with a second identical machine on the same segment, **WHEN** ticked, **THEN** demand 60 > 40, network Stalled, both machines report `Stalled`, omega = 0.
 - **GIVEN** the stalled network with an 8:16 gear inserted before the machines, **WHEN** ticked, **THEN** demand at source = 60 / (2 * 0.95) = 31.6 <= 40, Running, omega at machines = 5.
 - **GIVEN** a shaft run of 20 cells at eta 0.99, **WHEN** measured, **THEN** P_recv = P_src * 0.99^20 (about 0.818) within floating tolerance.

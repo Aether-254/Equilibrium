@@ -1,12 +1,12 @@
 # Story 003: Priority, dependency ordering, and conflict resolution
 
 > **Epic**: Tick Simulation
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: M
 > **Manifest Version**: 2026-09-20.1
-> **Last Updated**:
+> **Last Updated**: 2026-09-21
 
 ## Context
 
@@ -67,7 +67,7 @@ Build the dependency graph from `DependsOn` lists; Kahn's algorithm with a visit
 
 **Story Type**: Logic
 **Required evidence**: `Assets/Tests/EditMode/TickSimulation/ResolveTests.cs`
-**Status**: [ ] Not yet created
+**Status**: [x] Created; passes under dotnet purecheck (Unity Test Runner run pending by creator)
 
 ## Dependencies
 

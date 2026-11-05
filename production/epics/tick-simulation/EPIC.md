@@ -3,11 +3,11 @@
 > **Layer**: Foundation
 > **GDD**: design/gdd/tick-simulation.md
 > **Architecture Module**: TickEngine, TieBreakSource, EventBus (Equilibrium.Simulation)
-> **Status**: Ready
+> **Status**: Implemented (pending creator Unity test run)
 > **Priority**: MVP
 > **Engine Risk**: LOW (pure C#)
 > **Manifest Version**: 2026-09-20.1
-> **Stories**: Not yet created — run `/create-stories tick-simulation`
+> **Stories**: 5 (table below)
 
 ## Overview
 
@@ -39,6 +39,16 @@ Implement the transaction engine that owns the tick lifecycle: snapshot the worl
 - Mutation audit test proves no writes outside `IWorldWriter`.
 - `Equilibrium.Simulation.asmdef` exists with no UnityEngine reference.
 
+## Stories
+
+| # | Story | Type | Status |
+|---|-------|------|--------|
+| 001 | Create assembly definitions and TickEngine skeleton | Integration | Complete |
+| 002 | Transaction buffers, snapshot, and atomic commit | Logic | Complete |
+| 003 | Priority, dependency ordering, and conflict resolution | Logic | Complete |
+| 004 | CSPRNG tie-break source | Logic | Complete |
+| 005 | Event emission, save boundary hook, and mutation audit | Integration | Complete |
+
 ## Next Step
 
-Run `/create-stories tick-simulation`.
+Run `/story-readiness production/epics/tick-simulation/story-001-assemblies-and-engine-skeleton.md` then `/dev-story`.

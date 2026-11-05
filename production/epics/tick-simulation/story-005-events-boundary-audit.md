@@ -1,12 +1,12 @@
 # Story 005: Event emission, save boundary hook, and mutation audit
 
 > **Epic**: Tick Simulation
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Integration
 > **Estimate**: S
 > **Manifest Version**: 2026-09-20.1
-> **Last Updated**:
+> **Last Updated**: 2026-09-21
 
 ## Context
 
@@ -58,7 +58,7 @@
 
 **Story Type**: Integration
 **Required evidence**: `Assets/Tests/EditMode/TickSimulation/EventBusAndBoundaryTests.cs`
-**Status**: [ ] Not yet created
+**Status**: [x] Created; passes under dotnet purecheck (Unity Test Runner run pending by creator)
 
 ## Dependencies
 

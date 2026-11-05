@@ -1,12 +1,12 @@
 # Story 004: CSPRNG tie-break source
 
 > **Epic**: Tick Simulation
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: S
 > **Manifest Version**: 2026-09-20.1
-> **Last Updated**:
+> **Last Updated**: 2026-09-21
 
 ## Context
 
@@ -64,7 +64,7 @@ Wrap `RandomNumberGenerator` behind an internal `IEntropyProvider` so tests can 
 
 **Story Type**: Logic
 **Required evidence**: `Assets/Tests/EditMode/TickSimulation/TieBreakSourceTests.cs`
-**Status**: [ ] Not yet created
+**Status**: [x] Created; passes under dotnet purecheck (Unity Test Runner run pending by creator)
 
 ## Dependencies
 

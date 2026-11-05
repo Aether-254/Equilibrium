@@ -1,0 +1,20 @@
+#factory-hud { color: rgb(231, 231, 218); font-size: 14px; }
+.row { flex-direction: row; flex-wrap: wrap; align-items: center; }
+#toolbar, #inspector, #footer { position: absolute; background-color: rgba(20, 26, 29, 0.97); padding: 10px; }
+#toolbar { top: 0; left: 0; right: 0; border-bottom-width: 2px; border-bottom-color: rgb(211, 173, 89); }
+#brand { font-size: 17px; -unity-font-style: bold; margin-right: 26px; }
+#warehouse-stock { color: rgb(211, 173, 89); white-space: normal; flex-shrink: 1; }
+#mode-hint { margin-top: 6px; white-space: normal; }
+#inspector { top: 132px; bottom: 96px; right: 12px; width: 280px; overflow: hidden; }
+#inspector-title { font-size: 18px; margin-bottom: 10px; }
+#inspection-text { white-space: normal; margin-bottom: 12px; }
+#footer { bottom: 0; left: 0; right: 0; }
+#footer Label { white-space: normal; }
+#accessor-settings { margin-top: 8px; margin-bottom: 10px; }
+#accessor-settings Label { white-space: normal; }
+#accessor-settings .unity-base-field__label { min-width: 105px; }
+#accessor-settings .unity-base-field__input { background-color: rgb(45, 53, 56); color: rgb(241, 241, 228); border-color: rgb(91, 102, 103); }
+#accessor-settings .unity-text-element { color: rgb(241, 241, 228); }
+Button { background-color: rgb(45, 53, 56); color: rgb(231, 231, 218); border-width: 1px; border-color: rgb(77, 87, 88); border-radius: 2px; padding: 6px 10px; margin: 2px; }
+Button:hover { background-color: rgb(67, 77, 79); }
+Button.selected { background-color: rgb(211, 173, 89); color: rgb(20, 26, 29); }

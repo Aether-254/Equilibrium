@@ -89,6 +89,10 @@ public sealed record AddonManifest(string Namespace, string Version, string[] De
 
 ## Consequences
 
+### Implementation notes (2026-09-21)
+- JSON parsing uses Newtonsoft.Json (bundled with Unity) rather than System.Text.Json, which the Unity .NET Standard 2.1 profile lacks. `Equilibrium.Content` references it as a precompiled assembly and stays free of UnityEngine.
+- Base pack is loaded from a `ContentCatalog` ScriptableObject in `Resources/` until Addressables is added; the `IContentSource` boundary isolates the swap.
+
 ### Positive
 - Base authors keep Inspector ergonomics; Addon authors need only a text editor.
 - One validator ensures identical error semantics.

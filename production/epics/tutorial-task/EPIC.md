@@ -7,7 +7,7 @@
 > **Priority**: Vertical Slice
 > **Engine Risk**: HIGH (UI Toolkit); MEDIUM (scene management for tutorial levels)
 > **Manifest Version**: 2026-09-20.1
-> **Stories**: Not yet created — run `/create-stories tutorial-task`
+> **Stories**: 2 (table below)
 
 ## Overview
 
@@ -31,6 +31,13 @@ Implement metric-predicate tasks with windowed conditions, knowledge/tool/opport
 
 - tutorial-task acceptance criteria as EditMode tests (evaluator) and PlayMode tests (panel, Ponder isolation).
 
+## Stories
+
+| # | Story | Type | Status |
+|---|-------|------|--------|
+| 001 | Task evaluator, rewards validation, and task panel | Logic | Ready |
+| 002 | Ponder demos and standalone tutorial levels | Integration | Ready |
+
 ## Next Step
 
-Run `/create-stories tutorial-task`.
+Run `/story-readiness production/epics/tutorial-task/story-001-task-evaluator-and-panel.md` then `/dev-story`.
