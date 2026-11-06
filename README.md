@@ -1,4 +1,16 @@
+<div align="center">
+
 # Equilibrium
+
+**从直观机械到深入模拟，享受优化工厂的乐趣**
+
+[![CI](https://github.com/Aether-254/Equilibrium/actions/workflows/tests.yml/badge.svg)](https://github.com/Aether-254/Equilibrium/actions/workflows/tests.yml)
+[![License: ARR](https://img.shields.io/badge/License-ARR-lightgrey)](LICENSE)
+[![Unity 6000.6.1f1](https://img.shields.io/badge/Unity-6000.6.1f1-222222?logo=unity&logoColor=white)](ProjectSettings/ProjectVersion.txt)
+
+<a href="https://linux.do/"><img src="https://ld.xh.do/ld-badge.svg" alt="认可 Linux.DO"></a>
+
+</div>
 
 一个用 Unity 开发的俯视角工厂模拟游戏，也是个人自娱、边做边学 Unity 的长期项目。
 
@@ -114,6 +126,10 @@ unity test . --editor-version 6000.6.1f1 --mode PlayMode --output Logs/playmode.
 
 `Bruno/MarketAPI/` 当前是接口设计，不是可运行的市场服务器。全局市场、自部署服务器和跨版本兼容策略仍需后续实现。
 
+## 社区
+
+我们支持 [Linux.DO](https://linux.do/) 社区与开放、友善、重视技术质量的开发者社区。
+
 ## 版权
 
-**ARR — All Rights Reserved，保留所有权利。** 本项目未采用开源许可证；仓库可见不代表授予代码、设计或原创美术的复用、修改、分发许可，具体见 [LICENSE](LICENSE)。第三方依赖与已有第三方文件继续适用各自的许可。
+**ARR — All Rights Reserved，保留所有权利。** 允许查看和评论本仓库，其他权利保留。本项目未采用开源许可证；仓库可见不代表授予代码、设计或原创美术的复用、修改、分发许可，具体见 [LICENSE](LICENSE)。第三方依赖与已有第三方文件继续适用各自的许可。
