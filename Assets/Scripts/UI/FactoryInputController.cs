@@ -35,7 +35,7 @@ namespace Equilibrium.UI
         // Also used by integration tests; a UI hit cannot start, extend or commit a world edit.
         public void PointerDown(CellRef cell, Side worldSide, bool overUi)
         {
-            if (overUi || !Runtime.Session.World.InBounds(cell)) return;
+            if (overUi || Runtime.IsLoading || Hud?.HasModal == true || !Runtime.Session.World.InBounds(cell)) return;
             var session = Runtime.Session;
             Select(cell, worldSide);
             switch (Tool)
@@ -64,6 +64,7 @@ namespace Equilibrium.UI
 
         public void PointerMove(CellRef cell, bool overUi)
         {
+            if (Runtime.IsLoading || Hud?.HasModal == true) { CancelDrag(); return; }
             if (overUi) { Runtime.WorldRenderer.ClearPreview(); return; }
             if (Drag.Active)
             {
@@ -79,6 +80,7 @@ namespace Equilibrium.UI
 
         public void PointerUp(bool overUi)
         {
+            if (Runtime.IsLoading || Hud?.HasModal == true) { CancelDrag(); return; }
             if (!Drag.Active) return;
             if (!overUi && Drag.Cells.Count >= 2)
                 Runtime.Session.QueueBuild(Buildable.Belt, Drag.Cells, Drag.Orientation);
@@ -88,6 +90,7 @@ namespace Equilibrium.UI
         private void Update()
         {
             if (Runtime?.Session == null || Mouse.current == null) return;
+            if (Runtime.IsLoading || Hud?.HasModal == true) { CancelDrag(); return; }
             var mouse = Mouse.current; var keyboard = Keyboard.current;
             Vector2 screen = mouse.position.ReadValue(); bool overUi = Hud != null && Hud.HitTest(screen);
             bool typing = Hud != null && Hud.EditingText;
@@ -105,7 +108,10 @@ namespace Equilibrium.UI
                 if (keyboard.rKey.wasPressedThisFrame) Orientation = (Orientation + 1) & 3;
                 if (keyboard.fKey.wasPressedThisFrame) Drag.Reverse();
                 if (keyboard.spaceKey.wasPressedThisFrame) { Runtime.Pump.Paused = !Runtime.Pump.Paused; Hud?.Refresh(); }
+                if (keyboard.f5Key.wasPressedThisFrame) Hud?.SaveClicked();
+                if (keyboard.f9Key.wasPressedThisFrame) Hud?.LoadClicked();
             }
+            if (Hud?.HasModal == true) return;
             bool inside = Runtime.ScreenCell(screen, out var cell, out var position);
             if (!overUi && !typing && Runtime.WorldCamera != null)
             {

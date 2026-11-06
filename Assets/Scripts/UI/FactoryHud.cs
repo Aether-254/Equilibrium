@@ -12,7 +12,7 @@ namespace Equilibrium.UI
 {
     /// <summary>Runtime UITK construction bar and inspection, bound to committed factory state.</summary>
     [RequireComponent(typeof(UIDocument), typeof(FactoryInputController))]
-    public sealed class FactoryHud : MonoBehaviour
+    public sealed partial class FactoryHud : MonoBehaviour
     {
         public FactoryRuntime Runtime;
         public StyleSheet Styles;
@@ -59,6 +59,7 @@ namespace Equilibrium.UI
             ToolButton(tools, FactoryTool.Saw, "锯床  1"); ToolButton(tools, FactoryTool.Engine, "燃料机  2"); ToolButton(tools, FactoryTool.Shaft, "直轴  3");
             _pause = Button(tools, "暂停", () => { Runtime.Pump.Paused = !Runtime.Pump.Paused; Refresh(); });
             Button(tools, "单步", () => { Runtime.Pump.Paused = true; Runtime.Step(); Refresh(); });
+            AddSaveControls(tools);
             _mode = new Label { name = "mode-hint" }; _toolbar.Add(_mode);
 
             _inspector = new ScrollView(ScrollViewMode.Vertical) { name = "inspector" }; _root.Add(_inspector);
@@ -85,8 +86,11 @@ namespace Equilibrium.UI
             _accessorStatus = new Label(); _accessorActions.Add(_accessorStatus);
             Button(_inspector, "拆除选中方块", () => { Runtime.Session.QueueRemove(Input.Selected); Refresh(); });
             _footer = Box(_root, "footer"); _status = new Label { name = "factory-status" }; _footer.Add(_status);
+            _saveStatus = new Label { name = "save-status" }; _footer.Add(_saveStatus);
+            _footer.RegisterCallback<GeometryChangedEvent>(evt => _inspector.style.bottom = evt.newRect.height + 12);
             _footer.Add(new Label("中键拖动画面 · 滚轮缩放 · 右键拆除 · Esc 返回检查 · 空格暂停"));
             Runtime.Changed += Refresh; Input.SelectionChanged += SelectedChanged;
+            Runtime.SessionReplaced += LoadedSession;
             _ready = true; Refresh();
         }
 
@@ -178,6 +182,7 @@ namespace Equilibrium.UI
                 _ => "点击设备查看库存与状态 · 箱子需要相邻传送带上的存取器"
             };
             _status.text = $"Tick {s.Engine.TickIndex}  ·  {(Runtime.Pump.Paused ? "已暂停" : "1 秒 / Tick")}  ·  待提交 {s.PendingCommands}  ·  待建 {s.Ghosts.Count}  ·  {Reason(s.LastEditReason)}";
+            RefreshSaveControls();
             var b = w.BlockAt(Input.Selected); bool valid = !b.IsNone, belt = valid && s.Kind(b) == BlockKind.Conveyor;
             _chestActions.style.display = valid && w.SlotCount(b) > 0 && !belt ? DisplayStyle.Flex : DisplayStyle.None;
             _depositWood.style.display = valid && s.BlockId(b) != "saw" ? DisplayStyle.Flex : DisplayStyle.None;
@@ -246,7 +251,7 @@ namespace Equilibrium.UI
         };
         private void OnDestroy()
         {
-            if (Runtime != null) Runtime.Changed -= Refresh;
+            if (Runtime != null) { Runtime.Changed -= Refresh; Runtime.SessionReplaced -= LoadedSession; }
             if (Input != null) Input.SelectionChanged -= SelectedChanged;
             if (_fontAsset != null) Destroy(_fontAsset);
             if (_font != null) Destroy(_font);

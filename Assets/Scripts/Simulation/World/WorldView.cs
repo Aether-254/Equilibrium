@@ -136,6 +136,7 @@ namespace Equilibrium.Simulation.World
         public MachineState Machine { get; internal set; }
         public double FuelDebt { get; internal set; }
         internal readonly List<PersistentSlot> Slots = new List<PersistentSlot>();
+        internal Save.SaveRecord SavedBlock, SavedContainer, SavedMachine;
         public readonly Dictionary<string, string> Extras = new Dictionary<string, string>(StringComparer.Ordinal);
 
         public PersistentBag Clone()
@@ -144,11 +145,13 @@ namespace Equilibrium.Simulation.World
             b.Items.AddRange(Items);
             b.Reservations.AddRange(Reservations);
             b.Slots.AddRange(Slots);
+            b.SavedBlock = SavedBlock; b.SavedContainer = SavedContainer; b.SavedMachine = SavedMachine;
             foreach (var kv in Extras) b.Extras[kv.Key] = kv.Value;
             return b;
         }
 
-        public bool IsEmpty => Items.Count == 0 && Reservations.Count == 0 && Progress == 0f && Energy == 0f && Extras.Count == 0 && Machine == null && FuelDebt == 0;
+        public bool IsEmpty => Items.Count == 0 && Reservations.Count == 0 && Progress == 0f && Energy == 0f && Extras.Count == 0 && Machine == null && FuelDebt == 0
+            && SavedBlock == null && SavedContainer == null && SavedMachine == null;
     }
 
     internal readonly struct PersistentSlot

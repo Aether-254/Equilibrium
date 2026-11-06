@@ -25,6 +25,7 @@ namespace Equilibrium.Presentation
             public bool StaysOnBelt;
         }
         private FactoryRuntime _runtime;
+        private Equilibrium.Simulation.TickEngine _subscribedEngine;
         private readonly Dictionary<int, BlockVisual> _blocks = new Dictionary<int, BlockVisual>();
         private readonly Stack<BlockVisual> _pool = new Stack<BlockVisual>();
         private readonly List<int> _removed = new List<int>();
@@ -39,11 +40,19 @@ namespace Equilibrium.Presentation
 
         public void Initialize(FactoryRuntime runtime)
         {
-            _runtime = runtime; runtime.Session.Engine.TickBoundary += Boundary; Refresh();
+            if (_subscribedEngine != null) _subscribedEngine.TickBoundary -= Boundary;
+            foreach (var visual in _blocks.Values) Release(visual);
+            _blocks.Clear(); ClearPreview();
+            foreach (var visual in _ghosts) Release(visual);
+            _ghosts.Clear();
+            foreach (var group in _groups) group.Root.SetActive(false);
+            _groupCount = 0; _elapsed = 1;
+            _runtime = runtime; _subscribedEngine = runtime.Session.Engine;
+            _subscribedEngine.TickBoundary += Boundary; Refresh();
         }
         private void Boundary(ulong tick) { _elapsed = 0; Refresh(); }
         private void OnDestroy()
-        { if (_runtime != null && _runtime.Session != null) _runtime.Session.Engine.TickBoundary -= Boundary; }
+        { if (_subscribedEngine != null) _subscribedEngine.TickBoundary -= Boundary; }
 
         private void Update()
         {

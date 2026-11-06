@@ -7,7 +7,7 @@ using UnityEngine;
 namespace Equilibrium.Presentation
 {
     [DefaultExecutionOrder(-100)]
-    public sealed class FactoryRuntime : MonoBehaviour
+    public sealed partial class FactoryRuntime : MonoBehaviour
     {
         public FactoryAssets Assets;
         public Camera WorldCamera;
@@ -34,6 +34,7 @@ namespace Equilibrium.Presentation
             WorldRenderer = GetComponent<FactoryWorldRenderer>() ?? gameObject.AddComponent<FactoryWorldRenderer>();
             WorldRenderer.Initialize(this);
             Session.Engine.TickBoundary += OnBoundary;
+            InitializePersistence();
         }
 
         private void OnBoundary(ulong tick) => Changed?.Invoke();
@@ -49,6 +50,10 @@ namespace Equilibrium.Presentation
             position = ray.GetPoint(distance); cell = CellAt(position);
             return Session.World.InBounds(cell);
         }
-        private void OnDestroy() { if (Session != null) Session.Engine.TickBoundary -= OnBoundary; }
+        private void OnDestroy()
+        {
+            _destroyed = true; _saves?.Dispose();
+            if (Session != null) Session.Engine.TickBoundary -= OnBoundary;
+        }
     }
 }

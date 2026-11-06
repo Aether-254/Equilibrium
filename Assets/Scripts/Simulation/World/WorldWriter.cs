@@ -429,6 +429,7 @@ namespace Equilibrium.Simulation.World
             var target = _s.Bags[b.Index];
             target.Progress = bag.Progress; target.Energy = bag.Energy;
             target.Machine = bag.Machine?.Clone(); target.FuelDebt = bag.FuelDebt;
+            target.SavedBlock = bag.SavedBlock; target.SavedContainer = bag.SavedContainer; target.SavedMachine = bag.SavedMachine;
             foreach (var kv in bag.Extras) if (kv.Key != "slots") target.Extras[kv.Key] = kv.Value;
 
             int s = _s.SlotStart[b.Index], e = s + _s.SlotCount[b.Index];

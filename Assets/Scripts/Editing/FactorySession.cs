@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Equilibrium.Content;
 using Equilibrium.Simulation;
 using Equilibrium.Simulation.World;
+using Equilibrium.Simulation.Save;
 
 namespace Equilibrium.Editing
 {
@@ -14,6 +15,7 @@ namespace Equilibrium.Editing
         public Buildable Kind { get; }
         public int Orientation { get; }
         public ReasonCode Reason { get; internal set; }
+        internal SaveRecord SaveTemplate;
         internal ConstructionGhost(CellRef cell, Buildable kind, int orientation)
         { Cell = cell; Kind = kind; Orientation = orientation & 3; }
     }
@@ -62,9 +64,16 @@ namespace Equilibrium.Editing
         public int PendingCommands => _queued.Count;
         public int Revision { get; private set; }
         public bool AtSaveBoundary => Engine.Phase == TickPhase.Idle || Engine.Phase == TickPhase.Emit;
+        public string MarketMode { get; }
+        public string MarketServerId { get; }
 
-        public FactorySession(int width = 64, int height = 64, IDictionary<string, int> startingStock = null)
+        public FactorySession(int width = 64, int height = 64, IDictionary<string, int> startingStock = null,
+            string marketMode = "LocalNpc", string marketServerId = null)
         {
+            if (marketMode != "LocalNpc" && marketMode != "RemoteServer") throw SaveFields.Invalid("market mode");
+            if (marketMode == "RemoteServer" ? string.IsNullOrWhiteSpace(marketServerId) : marketServerId != null)
+                throw SaveFields.Invalid("market server identity");
+            MarketMode = marketMode; MarketServerId = marketServerId;
             Registry = new ContentRegistry();
             if (new ContentLoader().Load(Registry, Tier1Content.Build(), Array.Empty<ContentPack>()).BaseRejected)
                 throw new InvalidOperationException("Tier 1 content failed validation.");
@@ -98,6 +107,7 @@ namespace Equilibrium.Editing
 
         public BlockKind Kind(BlockRef block) => _definitions.Get(World.DefOf(block)).Kind;
         public string BlockId(BlockRef block) => _definitions.Get(World.DefOf(block)).Id;
+        public void ApplyMigrationCredential(string credential) => throw new NotSupportedException("Market migration verification is not implemented.");
         public int Stock(ItemId item) => _stock.TryGetValue(item.Handle, out int n) ? n : 0;
         public int Stock(string item) => Stock(Registry.Items.Parse(item));
         public bool IsReserved(CellRef cell) => _reserved.ContainsKey(cell);
